@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin: 0; padding: 0; background: oklch(0.11 0.008 70); overflow: hidden; }
+  * { box-sizing: border-box; }
+  a { color: oklch(0.79 0.13 76); text-decoration: none; }
+  a:hover { color: oklch(0.88 0.1 76); }
+  @keyframes bulb { 0%,100% { opacity: 1 } 43% { opacity: 0.84 } 47% { opacity: 0.5 } 51% { opacity: 0.93 } 79% { opacity: 0.68 } }
+  @keyframes crt { from { transform: translateY(0) } to { transform: translateY(-50%) } }
+  @keyframes typeR { 0% { transform: rotate(8deg) } 100% { transform: rotate(24deg) } }
+  @keyframes typeL { 0% { transform: rotate(-24deg) } 100% { transform: rotate(-8deg) } }
+  @keyframes breathe { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-2px) } }
+  @keyframes jolt { 0% { transform: translateY(0) } 16% { transform: translateY(-9px) } 38% { transform: translateY(3px) scaleY(0.94) } 62% { transform: translateY(-3px) } 100% { transform: translateY(0) } }
+  @keyframes whipEnter { 0% { transform: translateY(-80px); opacity: 0 } 15% { transform: translateY(0); opacity: 1 } 66% { transform: translateY(0); opacity: 1 } 100% { transform: translateY(-60px); opacity: 0 } }
+  @keyframes handleSwing { 0% { transform: rotate(-36deg) } 24% { transform: rotate(17deg) } 52% { transform: rotate(3deg) } 100% { transform: rotate(-14deg) } }
+  @keyframes lashSeg { 0% { transform: rotate(-48deg) } 26% { transform: rotate(31deg) } 48% { transform: rotate(-9deg) } 72% { transform: rotate(11deg) } 100% { transform: rotate(-22deg) } }
+  @keyframes lashTip { 0% { transform: rotate(-74deg) } 26% { transform: rotate(60deg) } 44% { transform: rotate(-26deg) } 68% { transform: rotate(23deg) } 100% { transform: rotate(-36deg) } }
+  @keyframes lashSwing { 0% { transform: rotate(-26deg) } 30% { transform: rotate(24deg) } 60% { transform: rotate(-8deg) } 100% { transform: rotate(0deg) } }
+  @keyframes flash { 0% { transform: scale(0.2); opacity: 0 } 30% { transform: scale(1); opacity: 1 } 100% { transform: scale(2.1); opacity: 0 } }
+  @keyframes bubble { 0% { transform: translateY(8px); opacity: 0 } 22% { transform: translateY(0); opacity: 1 } 74% { opacity: 1 } 100% { transform: translateY(-18px); opacity: 0 } }
+  @keyframes steam { 0% { transform: translateY(0) scale(0.8); opacity: 0 } 25% { opacity: 0.5 } 100% { transform: translateY(-56px) scale(1.5); opacity: 0 } }
+  @keyframes stir { 0% { transform: rotate(-34deg) } 50% { transform: rotate(-58deg) } 100% { transform: rotate(-34deg) } }
+  @keyframes sway { 0%,100% { transform: rotate(-3deg) } 50% { transform: rotate(4deg) } }
+  @keyframes waddle { 0%,100% { transform: rotate(-3deg) } 50% { transform: rotate(3deg) } }
+  @keyframes tail { 0%,100% { transform: rotate(-14deg) } 50% { transform: rotate(16deg) } }
+  @keyframes blink { 0%,100% { opacity: 1 } 50% { opacity: 0.25 } }
+</style>
+</helmet>
+<div style="height: 100vh; min-height: 640px; min-width: 1100px; display: grid; grid-template-rows: auto 1fr auto; background: oklch(0.11 0.008 70); color: oklch(0.72 0.012 80); font-family: 'IBM Plex Mono', ui-monospace, monospace; overflow: hidden">
+
+  <header style="display: flex; align-items: center; gap: 26px; padding: 11px 20px; background: oklch(0.15 0.012 70); border-bottom: 1px solid oklch(0.26 0.02 70)">
+    <div style="display: flex; flex-direction: column; gap: 3px">
+      <div style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 21px; letter-spacing: 0.07em; text-transform: uppercase; color: oklch(0.93 0.02 80); line-height: 1">Claude Code · дом агентов</div>
+      <div style="font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; color: oklch(0.5 0.012 80)">пять этажей · лифт один · терраса под защитой</div>
+    </div>
+    <div style="display: flex; gap: 8px; flex-wrap: wrap">
+      <div style="display: flex; align-items: center; gap: 7px; padding: 5px 10px; border: 1px solid oklch(0.28 0.02 70); background: oklch(0.17 0.012 70)">
+        <span style="width: 7px; height: 7px; border-radius: 50%; background: oklch(0.75 0.13 148); box-shadow: 0 0 8px oklch(0.75 0.13 148)"></span>
+        <span style="font-size: 11.5px; letter-spacing: 0.08em">на смене {{ stats.onShift }}</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 7px; padding: 5px 10px; border: 1px dashed oklch(0.3 0.02 70); background: oklch(0.16 0.01 70)">
+        <span style="width: 7px; height: 7px; border: 1px solid oklch(0.44 0.012 80)"></span>
+        <span style="font-size: 11.5px; letter-spacing: 0.08em; color: oklch(0.6 0.012 80)">без света {{ stats.darkFloors }}</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 7px; padding: 5px 10px; border: 1px solid oklch(0.28 0.02 70); background: oklch(0.17 0.012 70)">
+        <span style="width: 7px; height: 7px; border-radius: 50%; background: oklch(0.79 0.13 76)"></span>
+        <span style="font-size: 11.5px; letter-spacing: 0.08em">ударов {{ stats.whips }}</span>
+      </div>
+    </div>
+    <div style="margin-left: auto; display: flex; align-items: stretch; gap: 18px">
+      <div style="display: flex; flex-direction: column; justify-content: center; gap: 3px; text-align: right">
+        <div style="font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: oklch(0.5 0.012 80)">токены смены</div>
+        <div style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 24px; line-height: 1; color: oklch(0.9 0.02 84)">{{ session.tokens }}</div>
+      </div>
+      <div style="width: 1px; background: oklch(0.26 0.02 70)"></div>
+      <div style="display: flex; flex-direction: column; justify-content: center; gap: 3px; text-align: right">
+        <div style="font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: oklch(0.5 0.012 80)">лифт</div>
+        <div style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 24px; line-height: 1; color: oklch(0.79 0.13 76)">{{ lift.badge }}</div>
+      </div>
+    </div>
+  </header>
+
+  <div style="display: grid; grid-template-columns: 268px minmax(0, 1fr); gap: 1px; min-height: 0; background: oklch(0.24 0.018 70)">
+
+  <aside style="display: flex; flex-direction: column; min-height: 0; background: oklch(0.145 0.012 70)">
+    <div style="padding: 12px 14px 11px; border-bottom: 1px solid oklch(0.24 0.018 70)">
+      <div style="font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: oklch(0.52 0.012 80)">объект</div>
+      <div style="margin-top: 5px; font-size: 12.5px; color: oklch(0.9 0.014 84)">agents-lab / 5 этажей</div>
+      <div style="margin-top: 3px; font-size: 10.5px; color: oklch(0.54 0.012 80)">свет включается сам, когда приходят агенты</div>
+    </div>
+    <div style="flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column">
+      <sc-for list="{{ rows }}" as="r" hint-placeholder-count="5">
+        <div onClick="{{ r.onFocus }}" style="padding: 11px 14px; cursor: pointer; border-bottom: 1px solid oklch(0.175 0.014 70); border-left: 2px solid {{ r.edge }}; background: {{ r.bg }}" style-hover="background: oklch(0.2 0.016 70)">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 20px; line-height: 1; color: {{ r.numColor }}">{{ r.label }}</span>
+            <span style="min-width: 0; flex: 1">
+              <span style="display: block; font-size: 12px; color: oklch(0.9 0.014 84)">{{ r.title }}</span>
+              <span style="display: block; margin-top: 2px; font-size: 10px; letter-spacing: 0.1em; color: oklch(0.55 0.014 80)">{{ r.sub }}</span>
+            </span>
+            <span style="width: 9px; height: 9px; border-radius: 50%; background: {{ r.lampFill }}; box-shadow: {{ r.lampGlow }}; flex: none"></span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px">
+            <span style="font-size: 10.5px; color: oklch(0.6 0.014 80)">{{ r.countText }}</span>
+            <span onClick="{{ r.onToggle }}" style="margin-left: auto; padding: 4px 8px; font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; color: oklch(0.78 0.02 82); border: 1px solid oklch(0.32 0.02 70); background: oklch(0.18 0.012 70)" style-hover="background: oklch(0.26 0.02 70); color: oklch(0.95 0.02 84)">{{ r.toggleLabel }}</span>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="padding: 10px 14px; border-top: 1px solid oklch(0.24 0.018 70); font-size: 10px; line-height: 1.7; color: oklch(0.48 0.012 80)">колесо — зум, тяни мышкой — панорама. клик по этажу — приблизить. наведи на агента — появится кнут.</div>
+  </aside>
+
+  <section ref="{{ viewRef }}" onMouseDown="{{ onDown }}" style="position: relative; overflow: hidden; cursor: {{ cursor }}; background: oklch(0.125 0.01 250)">
+    <div style="position: absolute; left: 0; top: 0; width: 1300px; height: 1560px; transform-origin: 0 0; transform: {{ viewTransform }}; transition: {{ viewTransition }}">
+
+      <div style="position: absolute; left: 0; top: 0; width: 1300px; height: 470px; background: linear-gradient(180deg, oklch(0.24 0.05 262), oklch(0.42 0.07 250) 62%, oklch(0.62 0.06 230))"></div>
+      <div style="position: absolute; left: 0; top: 470px; width: 1300px; height: 1090px; background: linear-gradient(180deg, oklch(0.18 0.02 250), oklch(0.13 0.012 250))"></div>
+      <div style="position: absolute; left: 0; top: 1178px; width: 1300px; height: 382px; background: repeating-linear-gradient(45deg, oklch(0.2 0.02 50) 0 3px, oklch(0.16 0.016 48) 3px 9px)"></div>
+      <div style="position: absolute; left: 0; top: 1174px; width: 1300px; height: 5px; background: oklch(0.34 0.03 60)"></div>
+
+      <div style="position: absolute; left: 62px; top: 96px; width: 1176px; height: 1362px; background: oklch(0.16 0.012 60); box-shadow: 0 40px 120px oklch(0.06 0.006 60 / 0.7)"></div>
+
+      <div data-screen-label="Этаж 05 · Frontend" onClick="{{ f5.onFocus }}" style="position: absolute; left: 76px; top: 150px; width: 1148px; height: 260px; overflow: hidden; background: linear-gradient(180deg, oklch(0.68 0.11 232) 0%, oklch(0.82 0.07 200) 46%, oklch(0.9 0.06 84) 72%, oklch(0.86 0.06 88) 100%)">
+        <div style="position: absolute; left: 940px; top: 18px; width: 60px; height: 60px; border-radius: 50%; background: radial-gradient(circle, oklch(0.99 0.1 96), oklch(0.93 0.12 90) 52%, transparent 72%); box-shadow: 0 0 90px 40px oklch(0.95 0.1 92 / 0.35)"></div>
+        <div style="position: absolute; left: 120px; top: 44px; width: 180px; height: 26px; border-radius: 50%; background: oklch(0.98 0.01 240 / 0.6)"></div>
+        <div style="position: absolute; left: 520px; top: 26px; width: 130px; height: 20px; border-radius: 50%; background: oklch(0.98 0.01 240 / 0.45)"></div>
+        <div style="position: absolute; left: 0; top: 196px; width: 1148px; height: 64px; background: repeating-linear-gradient(90deg, oklch(0.66 0.06 68) 0 46px, oklch(0.6 0.055 66) 46px 50px)"></div>
+        <div style="position: absolute; left: 0; top: 192px; width: 1148px; height: 5px; background: oklch(0.74 0.06 74)"></div>
+        <div style="position: absolute; left: 0; top: 236px; width: 1148px; height: 6px; background: oklch(0.92 0.02 210 / 0.7)"></div>
+        <div style="position: absolute; left: 0; top: 202px; width: 1148px; height: 36px; background: repeating-linear-gradient(90deg, oklch(0.92 0.03 210 / 0.3) 0 4px, transparent 4px 78px)"></div>
+
+        <div style="position: absolute; left: 420px; top: 26px; width: 8px; height: 172px; background: oklch(0.72 0.03 74)"></div>
+        <div style="position: absolute; left: 300px; top: 14px; width: 250px; height: 44px; border-radius: 125px 125px 8px 8px; background: repeating-conic-gradient(from 0deg at 50% 100%, oklch(0.72 0.16 28) 0deg 18deg, oklch(0.96 0.02 90) 18deg 36deg)"></div>
+
+        <div style="position: absolute; left: 812px; top: 128px; width: 52px; height: 68px; border-radius: 4px 4px 10px 10px; background: oklch(0.56 0.11 46)"></div>
+        <div style="position: absolute; left: 820px; top: 74px; width: 36px; height: 58px; border-radius: 18px 6px 18px 6px; transform-origin: 50% 100%; background: oklch(0.56 0.13 148); animation: sway 5.4s ease-in-out infinite"></div>
+        <div style="position: absolute; left: 794px; top: 92px; width: 40px; height: 42px; border-radius: 20px 6px 20px 6px; transform-origin: 80% 100%; background: oklch(0.62 0.14 152); animation: sway 6.8s ease-in-out infinite 0.6s"></div>
+        <div style="position: absolute; left: 1010px; top: 148px; width: 40px; height: 48px; border-radius: 4px 4px 8px 8px; background: oklch(0.56 0.11 46)"></div>
+        <div style="position: absolute; left: 1014px; top: 108px; width: 32px; height: 44px; border-radius: 16px 5px 16px 5px; transform-origin: 50% 100%; background: oklch(0.6 0.13 150); animation: sway 6.1s ease-in-out infinite 1.2s"></div>
+
+        <sc-for list="{{ f5.agents }}" as="a" hint-placeholder-count="2">
+          <div onMouseEnter="{{ a.onEnter }}" onMouseLeave="{{ a.onLeave }}" style="position: absolute; left: {{ a.left }}px; top: 62px; width: 240px; height: 190px; z-index: 5">
+            <div style="position: absolute; left: 18px; top: 156px; width: 206px; height: 20px; border-radius: 50%; background: radial-gradient(ellipse, oklch(0.42 0.05 70 / 0.5), transparent 72%)"></div>
+            <div style="position: absolute; left: 96px; top: 62px; width: 132px; height: 16px; border-radius: 8px; background: oklch(0.96 0.02 200); box-shadow: inset 0 -4px 0 oklch(0.82 0.02 200)"></div>
+            <div style="position: absolute; left: 26px; top: 24px; width: 88px; height: 16px; border-radius: 8px; transform-origin: 100% 50%; transform: rotate(-38deg); background: oklch(0.96 0.02 200); box-shadow: inset 0 -4px 0 oklch(0.82 0.02 200)"></div>
+            <div style="position: absolute; left: 112px; top: 76px; width: 10px; height: 80px; background: oklch(0.86 0.02 200)"></div>
+            <div style="position: absolute; left: 210px; top: 76px; width: 10px; height: 80px; background: oklch(0.86 0.02 200)"></div>
+
+            <div style="position: absolute; left: 0; top: 0; width: 240px; height: 190px; animation: {{ a.joltAnim }}">
+              <div style="position: absolute; left: 104px; top: 46px; width: 96px; height: 26px; border-radius: 13px; transform: rotate(-3deg); background: oklch(0.72 0.08 42)"></div>
+              <div style="position: absolute; left: 186px; top: 44px; width: 40px; height: 20px; border-radius: 10px; background: oklch(0.7 0.08 40)"></div>
+              <div style="position: absolute; left: 54px; top: 22px; width: 60px; height: 50px; border-radius: 16px 22px 8px 8px; transform-origin: 100% 100%; transform: rotate(-30deg); background: oklch(0.94 0.05 96)"></div>
+              <div style="position: absolute; left: 34px; top: 4px; width: 34px; height: 34px; border-radius: 16px; background: oklch(0.78 0.06 62); animation: {{ a.breatheAnim }}"></div>
+              <div style="position: absolute; left: 36px; top: 14px; width: 30px; height: 7px; border-radius: 3px; background: oklch(0.24 0.02 250)"></div>
+              <div style="position: absolute; left: 30px; top: 0px; width: 42px; height: 12px; border-radius: 12px 12px 0 0; background: oklch(0.32 0.03 40)"></div>
+
+              <div style="position: absolute; left: 86px; top: 52px; width: 62px; height: 8px; border-radius: 3px; transform: rotate(-6deg); background: oklch(0.86 0.005 250); box-shadow: inset 0 -2px 0 oklch(0.7 0.005 250)"></div>
+              <div style="position: absolute; left: 92px; top: 20px; width: 54px; height: 34px; border-radius: 3px; transform-origin: 0 100%; transform: rotate(-16deg); background: oklch(0.84 0.005 250); padding: 4px">
+                <div style="width: 100%; height: 100%; overflow: hidden; background: {{ a.screenBg }}">
+                  <div style="animation: {{ a.crtAnim }}">
+                    <div style="height: 3px; margin: 2px 4px; width: 70%; background: {{ a.screenInk }}"></div>
+                    <div style="height: 3px; margin: 2px 4px 2px 10px; width: 44%; background: {{ a.screenInk }}; opacity: 0.7"></div>
+                    <div style="height: 3px; margin: 2px 4px; width: 58%; background: {{ a.screenInk }}; opacity: 0.85"></div>
+                    <div style="height: 3px; margin: 2px 4px 2px 10px; width: 36%; background: {{ a.screenInk }}; opacity: 0.6"></div>
+                    <div style="height: 3px; margin: 2px 4px; width: 70%; background: {{ a.screenInk }}"></div>
+                    <div style="height: 3px; margin: 2px 4px 2px 10px; width: 44%; background: {{ a.screenInk }}; opacity: 0.7"></div>
+                    <div style="height: 3px; margin: 2px 4px; width: 58%; background: {{ a.screenInk }}; opacity: 0.85"></div>
+                    <div style="height: 3px; margin: 2px 4px 2px 10px; width: 36%; background: {{ a.screenInk }}; opacity: 0.6"></div>
+                  </div>
+                </div>
+              </div>
+              <div style="position: absolute; left: 66px; top: 46px; width: 30px; height: 9px; border-radius: 5px; transform: rotate(14deg); background: oklch(0.94 0.05 96)"></div>
+            </div>
+
+            <div style="position: absolute; left: 6px; top: 118px; width: 34px; height: 46px; border-radius: 4px 4px 3px 3px; background: oklch(0.42 0.04 240 / 0.3); box-shadow: inset 0 0 0 1.5px oklch(0.96 0.02 220 / 0.7)">
+              <div style="position: absolute; left: 3px; top: 14px; right: 3px; bottom: 3px; border-radius: 2px; background: oklch(0.66 0.17 12)"></div>
+              <div style="position: absolute; left: 22px; top: -18px; width: 4px; height: 30px; border-radius: 2px; transform: rotate(12deg); background: oklch(0.92 0.09 120)"></div>
+            </div>
+
+            <div style="position: absolute; left: 0; top: 168px; width: 240px; display: flex; flex-direction: column; align-items: center; gap: 2px; z-index: 7; pointer-events: none">
+              <div style="display: flex; align-items: center; gap: 6px">
+                <span style="width: 6px; height: 6px; border-radius: 50%; background: {{ a.dot }}"></span>
+                <span style="font-size: 12px; font-weight: 500; color: oklch(0.26 0.02 60)">{{ a.name }}</span>
+              </div>
+              <div style="font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: oklch(0.42 0.03 60)">{{ a.role }} · {{ a.statusText }}</div>
+            </div>
+
+            <sc-if value="{{ a.showWhip }}" hint-placeholder-val="{{ false }}">
+              <div style="position: absolute; left: 40px; top: -22px; width: 160px; display: flex; justify-content: center; z-index: 30">
+                <div onClick="{{ a.onWhip }}" style="display: flex; align-items: center; gap: 7px; padding: 6px 11px 6px 8px; cursor: not-allowed; background: oklch(0.24 0.02 250 / 0.86); border: 1px dashed oklch(0.62 0.06 220)">
+                  <span style="display: block; width: 20px; height: 12px; background: oklch(0.66 0.03 220); clip-path: polygon(0 0, 34% 20%, 62% 62%, 100% 100%, 82% 100%, 48% 66%, 22% 26%, 0 14%)"></span>
+                  <span style="font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: oklch(0.9 0.02 220)">{{ a.whipLabel }}</span>
+                </div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ a.hitting }}" hint-placeholder-val="{{ false }}">
+              <div style="position: absolute; left: 30px; top: 20px; width: 40px; height: 1px; z-index: 40; pointer-events: none">
+                <div style="position: absolute; left: 0; top: -10px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 22px; letter-spacing: 0.05em; white-space: nowrap; color: oklch(0.42 0.1 250); animation: bubble 1.2s ease-out 1 both">{{ a.cry }}</div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+
+        <div style="position: absolute; left: 22px; top: 16px; display: flex; align-items: baseline; gap: 9px; pointer-events: none">
+          <span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 34px; line-height: 1; color: oklch(0.32 0.04 250 / 0.55)">05</span>
+          <span style="font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: oklch(0.34 0.04 250 / 0.6)">frontend · терраса</span>
+        </div>
+
+        <sc-if value="{{ f5.dark }}" hint-placeholder-val="{{ false }}">
+          <div style="position: absolute; inset: 0; background: linear-gradient(180deg, oklch(0.14 0.03 262 / 0.9), oklch(0.1 0.02 258 / 0.94))"></div>
+          <div style="position: absolute; left: 22px; top: 108px; display: flex; align-items: center; gap: 10px">
+            <span style="width: 9px; height: 9px; border: 1px solid oklch(0.5 0.014 80)"></span>
+            <span style="font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: oklch(0.6 0.014 80)">свет выключен · агентов нет</span>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="position: absolute; left: 76px; top: 404px; width: 1148px; height: 14px; background: linear-gradient(180deg, oklch(0.42 0.02 70), oklch(0.24 0.016 66))"></div>
+
+      <div data-screen-label="Этаж 04 · Тестировщики" onClick="{{ f4.onFocus }}" style="position: absolute; left: 76px; top: 418px; width: 1148px; height: 246px; overflow: hidden; background: linear-gradient(180deg, oklch(0.29 0.026 52) 0%, oklch(0.26 0.024 50) 62%, oklch(0.2 0.02 46) 100%)">
+        <div style="position: absolute; inset: 0; opacity: 0.5; background-image: repeating-linear-gradient(90deg, oklch(0.22 0.02 48) 0 2px, transparent 2px 58px)"></div>
+        <div style="position: absolute; left: 0; top: 150px; width: 1148px; height: 96px; background: repeating-linear-gradient(90deg, oklch(0.23 0.022 46) 0 62px, oklch(0.2 0.02 44) 62px 66px)"></div>
+        <div style="position: absolute; left: 0; top: 146px; width: 1148px; height: 5px; background: oklch(0.36 0.03 52)"></div>
+        <div style="position: absolute; left: 880px; top: 44px; width: 216px; height: 92px; background: oklch(0.15 0.012 60); box-shadow: inset 0 0 0 3px oklch(0.34 0.03 52)">
+          <div style="padding: 12px 14px; font-size: 12px; line-height: 1.7; letter-spacing: 0.08em; color: oklch(0.72 0.11 32)">ПРОВАЛОВ 214<br />ПРИЧИН 0<br />ВИНОВНЫХ НЕТ</div>
+        </div>
+
+        <sc-if value="{{ f4.lit }}" hint-placeholder-val="{{ true }}">
+          <div style="position: absolute; left: 262px; top: 0; width: 3px; height: 34px; background: oklch(0.4 0.02 60)"></div>
+          <div style="position: absolute; left: 232px; top: 30px; width: 64px; height: 24px; border-radius: 4px 4px 32px 32px; background: linear-gradient(180deg, oklch(0.36 0.03 52), oklch(0.26 0.02 48))"></div>
+          <div style="position: absolute; left: 250px; top: 50px; width: 28px; height: 10px; border-radius: 50%; background: oklch(0.92 0.09 88); box-shadow: 0 0 40px 16px oklch(0.84 0.1 84 / 0.34)"></div>
+          <div style="position: absolute; left: 562px; top: 0; width: 3px; height: 34px; background: oklch(0.4 0.02 60)"></div>
+          <div style="position: absolute; left: 532px; top: 30px; width: 64px; height: 24px; border-radius: 4px 4px 32px 32px; background: linear-gradient(180deg, oklch(0.36 0.03 52), oklch(0.26 0.02 48))"></div>
+          <div style="position: absolute; left: 550px; top: 50px; width: 28px; height: 10px; border-radius: 50%; background: oklch(0.92 0.09 88); box-shadow: 0 0 40px 16px oklch(0.84 0.1 84 / 0.34)"></div>
+        </sc-if>
+
+        <sc-for list="{{ f4.agents }}" as="a" hint-placeholder-count="3">
+          <div onMouseEnter="{{ a.onEnter }}" onMouseLeave="{{ a.onLeave }}" onClick="{{ a.onWhip }}" style="position: absolute; left: {{ a.left }}px; top: 40px; width: 150px; height: 200px; z-index: 5; cursor: pointer">
+            <div style="position: absolute; left: 34px; top: 32px; width: 82px; height: 104px; border-radius: 22px 22px 6px 6px; background: linear-gradient(180deg, oklch(0.3 0.04 32), oklch(0.24 0.03 30)); box-shadow: inset 0 0 0 2px oklch(0.36 0.05 34)"></div>
+            <div style="position: absolute; left: 0; top: 0; width: 150px; height: 200px; animation: {{ a.joltAnim }}">
+              <div style="position: absolute; left: 50px; top: 12px; width: 50px; height: 46px; border-radius: 22px 22px 18px 18px; background: oklch(0.76 0.05 62); animation: {{ a.breatheAnim }}"></div>
+              <div style="position: absolute; left: 46px; top: 8px; width: 58px; height: 16px; border-radius: 20px 20px 0 0; background: oklch(0.24 0.014 60)"></div>
+              <div style="position: absolute; left: 61px; top: 30px; width: 6px; height: 6px; border-radius: 50%; background: oklch(0.2 0.02 60)"></div>
+              <div style="position: absolute; left: 83px; top: 30px; width: 6px; height: 6px; border-radius: 50%; background: oklch(0.2 0.02 60)"></div>
+              <div style="position: absolute; left: 68px; top: 46px; width: 14px; height: 3px; border-radius: 2px; background: oklch(0.46 0.05 40)"></div>
+              <div style="position: absolute; left: 40px; top: 56px; width: 70px; height: 96px; border-radius: 14px 14px 4px 4px; background: linear-gradient(180deg, oklch(0.18 0.012 58), oklch(0.14 0.01 56))"></div>
+              <div style="position: absolute; left: 60px; top: 56px; width: 30px; height: 44px; background: oklch(0.95 0.008 90); clip-path: polygon(24% 0, 76% 0, 60% 100%, 40% 100%)"></div>
+              <div style="position: absolute; left: 66px; top: 62px; width: 18px; height: 9px; background: oklch(0.62 0.16 26); clip-path: polygon(0 0, 44% 42%, 0 100%, 56% 100%, 100% 58%, 100% 0)"></div>
+              <div style="position: absolute; left: 24px; top: 96px; width: 26px; height: 14px; border-radius: 7px; transform: rotate(16deg); background: oklch(0.17 0.012 58)"></div>
+              <div style="position: absolute; left: 100px; top: 96px; width: 26px; height: 14px; border-radius: 7px; transform: rotate(-16deg); background: oklch(0.17 0.012 58)"></div>
+              <div style="position: absolute; left: 18px; top: 106px; width: 16px; height: 9px; border-radius: 5px; background: oklch(0.76 0.05 62)"></div>
+              <div style="position: absolute; left: 116px; top: 106px; width: 16px; height: 9px; border-radius: 5px; background: oklch(0.76 0.05 62)"></div>
+            </div>
+            <div style="position: absolute; left: 0; top: 106px; width: 150px; height: 20px; background: linear-gradient(180deg, oklch(0.2 0.02 44), oklch(0.15 0.014 42)); z-index: 6"></div>
+            <div style="position: absolute; left: 0; top: 104px; width: 150px; height: 4px; background: oklch(0.42 0.03 54); z-index: 6"></div>
+            <div style="position: absolute; left: 48px; top: 96px; width: 54px; height: 12px; border-radius: 2px; background: oklch(0.9 0.008 90); z-index: 7; box-shadow: 0 2px 6px oklch(0.1 0.01 50 / 0.5)"></div>
+            <div style="position: absolute; left: 8px; top: 92px; width: 16px; height: 18px; border-radius: 3px 3px 8px 8px; background: oklch(0.92 0.03 88 / 0.55); z-index: 7; box-shadow: inset 0 0 0 1px oklch(0.98 0.02 90 / 0.6)"></div>
+            <div style="position: absolute; left: 0; top: 138px; width: 150px; display: flex; flex-direction: column; align-items: center; gap: 2px; z-index: 8; pointer-events: none">
+              <div style="display: flex; align-items: center; gap: 6px">
+                <span style="width: 6px; height: 6px; border-radius: 50%; background: {{ a.dot }}"></span>
+                <span style="font-size: 12px; font-weight: 500; color: oklch(0.92 0.014 84)">{{ a.name }}</span>
+              </div>
+              <div style="font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: oklch(0.6 0.014 80)">{{ a.role }} · {{ a.statusText }}</div>
+            </div>
+            <sc-if value="{{ a.showWhip }}" hint-placeholder-val="{{ false }}">
+              <div style="position: absolute; left: -5px; top: -26px; width: 160px; display: flex; justify-content: center; z-index: 30">
+                <div onClick="{{ a.onWhip }}" style="display: flex; align-items: center; gap: 7px; padding: 6px 11px 6px 8px; cursor: pointer; background: oklch(0.2 0.02 40); border: 1px solid oklch(0.5 0.12 34); box-shadow: 0 6px 18px oklch(0.08 0.01 40 / 0.6)" style-hover="background: oklch(0.28 0.05 36); border-color: oklch(0.66 0.16 32)">
+                  <span style="display: block; width: 20px; height: 12px; background: oklch(0.72 0.1 44); clip-path: polygon(0 0, 34% 20%, 62% 62%, 100% 100%, 82% 100%, 48% 66%, 22% 26%, 0 14%)"></span>
+                  <span style="font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; color: oklch(0.9 0.04 60)">{{ a.whipLabel }}</span>
+                </div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ a.hitting }}" hint-placeholder-val="{{ false }}">
+              <div style="position: absolute; left: 0; top: 0; width: 150px; height: 1px; z-index: 40; pointer-events: none">
+                <div style="position: absolute; left: 75px; top: -104px; width: 0; height: 0; animation: whipEnter 0.8s ease-out 1 both">
+                  <div style="position: absolute; left: -4px; top: 0; width: 9px; height: 28px; border-radius: 4px; transform-origin: 50% 0; background: linear-gradient(180deg, oklch(0.32 0.04 42), oklch(0.23 0.03 40)); animation: handleSwing 0.62s cubic-bezier(0.24,0.9,0.32,1) 1 both">
+                    <div style="position: absolute; left: 1.5px; top: 26px; width: 6px; height: 36px; border-radius: 3px; transform-origin: 50% 0; background: linear-gradient(180deg, oklch(0.44 0.05 44), oklch(0.54 0.08 46)); animation: lashSeg 0.62s cubic-bezier(0.24,0.9,0.32,1) 0.04s 1 both">
+                      <div style="position: absolute; left: 1px; top: 34px; width: 4px; height: 30px; border-radius: 2px; transform-origin: 50% 0; background: linear-gradient(180deg, oklch(0.56 0.08 48), oklch(0.68 0.1 54)); animation: lashTip 0.62s cubic-bezier(0.24,0.9,0.32,1) 0.1s 1 both"></div>
+                    </div>
+                  </div>
+                </div>
+                <div style="position: absolute; left: 52px; top: 34px; width: 46px; height: 46px; border-radius: 50%; background: radial-gradient(circle, oklch(0.99 0.1 92 / 0.95), oklch(0.82 0.14 70 / 0.3) 44%, transparent 70%); animation: flash 0.46s ease-out 0.28s 1 both"></div>
+                <div style="position: absolute; left: 92px; top: 16px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 22px; letter-spacing: 0.05em; white-space: nowrap; color: oklch(0.9 0.13 72); animation: bubble 1.15s ease-out 0.3s 1 both">{{ a.cry }}</div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+
+        <div style="position: absolute; left: 22px; top: 14px; display: flex; align-items: baseline; gap: 9px; pointer-events: none">
+          
+</x-dc>
+</body>
+</html>

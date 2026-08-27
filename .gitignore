@@ -1,0 +1,5 @@
+# OMC operational state
+.omc/
+
+# OS
+.DS_Store
