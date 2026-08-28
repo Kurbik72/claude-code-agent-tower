@@ -1,0 +1,10 @@
+name = "agent-tower-classify"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+
+# NOTE: the DeepSeek key is a *secret*, not a var.
+#
+#   npx wrangler secret put DEEPSEEK_API_KEY
+#
+# Never add it under [vars] - that section is plain text and lives in git.
+# There is intentionally nothing secret in this file.

@@ -14,15 +14,17 @@ const RECHECK_OVERLAP = 0.4;
 /**
  * Agent classification pipeline (plan 4).
  *
- * The heuristic answers immediately and unconditionally; DeepSeek, when a key
- * is configured, refines the answer in batches and its verdicts are cached on
- * disk so repeated pipeline runs cost one call.
+ * The heuristic answers immediately and unconditionally; DeepSeek refines the
+ * answer in batches - reached either with the user's own key or through the
+ * hosted proxy - and its verdicts are cached on disk so repeated pipeline runs
+ * cost one call.
  */
 export class Classifier {
-  constructor(store, { apiKey = '', cacheFile, enabled = true, fetchImpl = fetch } = {}) {
+  constructor(store, { apiKey = '', proxyUrl = '', cacheFile, enabled = true, fetchImpl = fetch } = {}) {
     this.store = store;
     this.apiKey = apiKey;
-    this.enabled = enabled && !!apiKey;
+    this.proxyUrl = proxyUrl;
+    this.enabled = enabled && (!!apiKey || !!proxyUrl);
     this.fetchImpl = fetchImpl;
     this.cache = cacheFile ? new ClassifyCache(cacheFile) : null;
     this.queue = new Map();
@@ -140,6 +142,7 @@ export class Classifier {
       try {
         const results = await classifyBatch(items, {
           apiKey: this.apiKey,
+          proxyUrl: this.proxyUrl,
           fetchImpl: this.fetchImpl,
         });
         for (const [id, entry] of slice) {

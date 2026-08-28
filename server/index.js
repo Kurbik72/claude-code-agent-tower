@@ -24,12 +24,14 @@ const STATUS_TICK = 5000;
 export async function createServer({
   projectsDir = DEFAULT_PROJECTS_DIR,
   deepseekKey = '',
+  proxyUrl = '',
   noAi = false,
   logger = false,
 } = {}) {
   const store = new Store();
   const classifier = new Classifier(store, {
     apiKey: deepseekKey,
+    proxyUrl,
     cacheFile: CACHE_FILE,
     enabled: !noAi,
   });

@@ -14,22 +14,25 @@ npm start
 ```
 
 That builds the frontend, starts the server on `http://localhost:7788` and opens a browser.
-On the first run it asks once for a DeepSeek API key (hidden input); press Enter to skip and
-run on the built-in heuristic classifier instead. The key is stored in
-`~/.agent-tower/config.json` with mode `600`.
+Nothing to configure and nothing to sign up for: AI classification goes through a hosted proxy
+that carries the project's DeepSeek key, so there is no key to paste and no prompt to answer.
 
 ```
 --port <n>            preferred port (default 7788, increments while busy)
 --no-open             do not open a browser
 --projects-dir <p>    transcripts root (default ~/.claude/projects)
---deepseek-key <k>    DeepSeek API key
---no-ai               heuristic classifier only
+--deepseek-key <k>    use your own DeepSeek key instead of the shared proxy
+--proxy-url <u>       classification proxy (default: the project's)
+--no-ai               heuristic classifier only, no network
 ```
 
-Key resolution order: `--deepseek-key` → `DEEPSEEK_API_KEY` → config file → interactive prompt.
+Bring your own key with `--deepseek-key`, `DEEPSEEK_API_KEY`, or `deepseekKey` in
+`~/.agent-tower/config.json`; a key always wins over the proxy. `--no-ai` keeps the tower fully
+offline on the built-in heuristic.
 
 The server binds `127.0.0.1` only and sets no CORS headers. Transcripts contain full prompts and
-source code; nothing leaves the machine.
+source code, and none of that is what gets classified: the proxy receives only agent names, types,
+tool names, file paths and a short task description. Set `--no-ai` if even that is too much.
 
 ## How it works
 
@@ -52,7 +55,7 @@ Claude Code has no event API. What it does have is append-only JSONL transcripts
         ▼
   Normalizer — transcript lines → agents, tool calls, thinking, usage
         │
-        ├──► Classifier — heuristic always, DeepSeek when configured → floor
+        ├──► Classifier — heuristic always, DeepSeek to refine it → floor
         ▼
   Store (in memory) ──► SSE /api/stream ──► browser
         └──────────► GET /api/state (snapshot on connect and on resync)
@@ -122,7 +125,8 @@ empty one is dark.
 ### Classification
 
 The heuristic runs on every new piece of evidence — file extensions, tool names, agent type — and
-is the only classifier when there is no key or no network. DeepSeek, when configured, refines it:
+is the only classifier with `--no-ai` or no network. DeepSeek refines it — reached through the
+shared proxy, or directly when you bring a key:
 batched (up to 8 agents per call, 400ms window), at most 4 requests in flight, answers validated
 against a zod schema, `confidence < 0.55` treated as `unknown`, and results cached in
 `~/.agent-tower/classify-cache.json` for 30 days. An unclassified agent starts in the basement
@@ -183,14 +187,26 @@ server/
   store.js              world state, statuses, placement, event feed
   floors.js             floor table and isometric slot geometry
   sse.js                ring buffer, Last-Event-ID replay, throttling
-  classifier/           heuristic, DeepSeek client, cache, agent docs
+  classifier/           heuristic, DeepSeek client, shared prompt, cache, agent docs
   replay.js             fixture playback
 web/src/
   scene/                per-floor scenery, transcribed from the design
   components/           header, sidebar, canvas, floors, characters, inspector
   store/tower.ts        client state (zustand)
   i18n/                 en + ru dictionaries
+proxy/
+  worker.js             the classification proxy - the only server-side piece
 ```
+
+## The proxy
+
+One Cloudflare Worker holds the DeepSeek key so users do not need one. The key lives in
+Cloudflare's secret store: not in this repository, not in the npm package, not on any user's
+machine. The worker's URL ships in the source and grants nothing but agent classification — the
+prompt and the model are fixed inside it and the request body is whitelisted down to the eight
+fields the prompt uses, so it cannot be repurposed as a general-purpose model.
+
+See [`proxy/README.md`](proxy/README.md) to deploy your own or rotate the key.
 
 ## Language
 

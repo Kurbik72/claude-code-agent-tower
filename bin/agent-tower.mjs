@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { spawn } from 'node:child_process';
 import { createServer, listen } from '../server/index.js';
-import { DEFAULT_PROJECTS_DIR, resolveDeepSeekKey } from '../server/config.js';
+import { DEFAULT_PROJECTS_DIR, resolveClassifier } from '../server/config.js';
 
 const USAGE = `
   agent-tower - isometric tower of live Claude Code agents
@@ -10,8 +10,9 @@ const USAGE = `
     --port <n>            preferred port (default 7788, increments if busy)
     --no-open             do not open a browser
     --projects-dir <p>    transcripts root (default ~/.claude/projects)
-    --deepseek-key <k>    DeepSeek API key for classification
-    --no-ai               heuristic classifier only
+    --deepseek-key <k>    use your own DeepSeek key instead of the shared proxy
+    --proxy-url <u>       classification proxy (default: the project's)
+    --no-ai               heuristic classifier only, no network
     --help
 `;
 
@@ -21,6 +22,7 @@ function parseArgs(argv) {
     open: true,
     projectsDir: DEFAULT_PROJECTS_DIR,
     deepseekKey: '',
+    proxyUrl: '',
     noAi: false,
   };
   for (let i = 0; i < argv.length; i++) {
@@ -31,6 +33,7 @@ function parseArgs(argv) {
     else if (arg === '--port') args.port = Number(argv[++i]) || args.port;
     else if (arg === '--projects-dir') args.projectsDir = argv[++i] || args.projectsDir;
     else if (arg === '--deepseek-key') args.deepseekKey = argv[++i] || '';
+    else if (arg === '--proxy-url') args.proxyUrl = argv[++i] || '';
   }
   return args;
 }
@@ -49,14 +52,16 @@ async function main() {
     return;
   }
 
-  const deepseekKey = await resolveDeepSeekKey({
+  const classifier = await resolveClassifier({
     flagKey: args.deepseekKey,
+    flagProxyUrl: args.proxyUrl,
     noAi: args.noAi,
   });
 
   const { app, hasWeb } = await createServer({
     projectsDir: args.projectsDir,
-    deepseekKey,
+    deepseekKey: classifier.apiKey,
+    proxyUrl: classifier.proxyUrl,
     noAi: args.noAi,
   });
 
@@ -65,9 +70,12 @@ async function main() {
 
   process.stdout.write(`\n  agent-tower  ${url}\n`);
   process.stdout.write(`  transcripts  ${args.projectsDir}\n`);
-  process.stdout.write(
-    `  classifier   ${deepseekKey ? 'deepseek + heuristic' : 'heuristic only'}\n\n`,
-  );
+  const CLASSIFIER_LABEL = {
+    deepseek: 'deepseek (your key) + heuristic',
+    proxy: 'deepseek (shared proxy) + heuristic',
+    heuristic: 'heuristic only',
+  };
+  process.stdout.write(`  classifier   ${CLASSIFIER_LABEL[classifier.mode]}\n\n`);
   if (!hasWeb) {
     process.stdout.write('  the frontend is not built yet - run `npm run build`\n\n');
   }
