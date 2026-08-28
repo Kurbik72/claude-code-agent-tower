@@ -11,6 +11,13 @@ import {
 export const WORK_WINDOW = 60_000;
 export const WAIT_WINDOW = 15 * 60_000;
 export const LEAVE_AFTER = 30 * 60_000;
+/**
+ * An agent that finished its turn — a final assistant answer with no tool call —
+ * and then stayed quiet has nothing left to do: it gets up and rides the lift
+ * down without waiting out the full idle timeout. A subagent leaves the moment
+ * its Task returns, so this is the session's equivalent of the same event.
+ */
+export const DONE_AFTER = 3 * 60_000;
 
 /** Per-agent retention caps (plan 6). */
 const MAX_THINKING = 200;
@@ -98,6 +105,7 @@ export class Store extends EventEmitter {
       classification: null,
       unknownFloor: true,
       thinking: [],
+      thinkingSeq: 0,
       tools: [],
       toolIndex: new Map(),
       usage: { input: 0, output: 0, cacheRead: 0, contextPct: 0 },
@@ -113,6 +121,9 @@ export class Store extends EventEmitter {
     this.place(agent, FLOOR_BY_KEY.unknown, { silent: true });
     this.#patch('agent.enter', this.publicAgent(agent));
     this.pushEvent('agent.enter', { name: agent.name, floor: floorById(agent.floorId)?.num });
+    // the shift counter and the lit-floor tally move the moment somebody
+    // walks in, not five seconds later when a status happens to change
+    this.emitStats();
     return agent;
   }
 
@@ -142,8 +153,23 @@ export class Store extends EventEmitter {
     if (!agent) return;
     this.agents.delete(id);
     this.#patch('agent.leave', { id, reason });
-    this.pushEvent('agent.leave', { name: agent.name });
+    this.pushEvent('agent.leave', { name: agent.name, reason });
     this.rebalance();
+    this.emitStats();
+  }
+
+  /**
+   * A session went away — its transcript was deleted — so everybody who belongs
+   * to it goes with it, subagents included: their transcripts live inside the
+   * session's own directory and cannot outlive it.
+   */
+  removeSession(sessionId, reason = 'closed') {
+    if (!sessionId) return 0;
+    const doomed = [...this.agents.values()].filter(
+      (a) => a.sessionId === sessionId || a.id === `s:${sessionId}`,
+    );
+    for (const agent of doomed) this.removeAgent(agent.id, reason);
+    return doomed.length;
   }
 
   // ----------------------------------------------------------- placement
@@ -192,6 +218,8 @@ export class Store extends EventEmitter {
         floor: floorById(target)?.num,
         reason,
       });
+      // a move empties one floor and lights another
+      this.emitStats();
     }
     return agent;
   }
@@ -252,7 +280,10 @@ export class Store extends EventEmitter {
 
   addThinking(agent, text, at) {
     if (!text) return;
-    const line = { id: `${agent.id}:t${agent.thinking.length}`, text, at };
+    // The counter is monotonic rather than derived from the array length: once
+    // the 200-line cap starts shifting, `length` stops growing and every new
+    // line would be handed the id of the one before it.
+    const line = { id: `${agent.id}:t${agent.thinkingSeq++}`, text, at };
     agent.thinking.push(line);
     if (agent.thinking.length > MAX_THINKING) agent.thinking.shift();
     if (this.focused.has(agent.id)) {
@@ -324,9 +355,14 @@ export class Store extends EventEmitter {
         this.#patch('agent.update', this.publicAgent(agent));
         if (next === 'dead') this.pushEvent('agent.dead', { name: agent.name });
       }
-      if (idle >= LEAVE_AFTER) gone.push(agent.id);
+      // an agent that answered and then went quiet has finished its work: it
+      // stands up and leaves rather than sitting out the full idle timeout
+      if (idle >= LEAVE_AFTER) gone.push([agent.id, 'idle']);
+      else if (agent.lastKind === 'answer' && idle >= DONE_AFTER) {
+        gone.push([agent.id, 'finished']);
+      }
     }
-    for (const id of gone) this.removeAgent(id, 'idle');
+    for (const [id, reason] of gone) this.removeAgent(id, reason);
     if (changed.length || gone.length) this.emitStats();
     return changed;
   }

@@ -1,18 +1,20 @@
-import { memo, useMemo } from 'react';
+import { memo, useMemo, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from './canvas.module.css';
 import { Basement, CHARACTER_BOX, Clerk, Cook, Standby, Suit, Terrace } from './characters';
 import { characterAnim } from './characters/parts';
 import { STATUS_COLOR } from '../lib/format';
 import type { Agent } from '../lib/types';
-import { useTower } from '../store/tower';
+import { STEP_IN_MS, useTower } from '../store/tower';
 
 /**
  * One agent standing in its slot.
  *
  * The body comes from the agent's floor, the animations from its live status,
- * and the arrival animation from the elevator: a freshly seen agent starts at
- * the car and walks along the isometric axis to its seat (plan 5.3).
+ * and the walk from the elevator: a freshly seen agent waits inside the car
+ * until its doors are open, steps out and walks to its seat; one that has
+ * finished stands up, walks back and rides down (plan 5.3). Both walks are
+ * timed against the car itself, so nobody crosses a floor to a shut door.
  */
 export const AgentFigure = memo(function AgentFigure({
   agent,
@@ -51,6 +53,23 @@ export const AgentFigure = memo(function AgentFigure({
     }
   })();
 
+  const walk = leaving ?? arriving;
+  // Every beat of the walk is a variable rather than a fixed duration: the
+  // delay is however long the car still needs, and the name plate and the
+  // fade into the cabin hang off the end of the walk itself.
+  const timing: CSSProperties = walk
+    ? ({
+        '--from-x': `${Math.round(walk.dx)}px`,
+        '--from-y': `${Math.round(walk.dy)}px`,
+        '--walk-ms': `${walk.ms}ms`,
+        '--walk-delay': `${walk.delay}ms`,
+        '--bob-delay': `${walk.delay + (leaving ? Math.round(walk.ms * 0.18) : 0)}ms`,
+        '--step-ms': `${STEP_IN_MS}ms`,
+        '--fade-delay': `${walk.delay + walk.ms - 80}ms`,
+        '--plate-delay': `${walk.delay + walk.ms - 200}ms`,
+      } as CSSProperties)
+    : {};
+
   return (
     <div
       className={`${styles.agent} ${leaving ? styles.leaving : arriving ? styles.arriving : ''}`}
@@ -60,12 +79,7 @@ export const AgentFigure = memo(function AgentFigure({
         width: box.width,
         height: box.height,
         zIndex: agent.z,
-        ...(() => {
-          const walk = leaving ?? arriving;
-          return walk
-            ? ({ '--from-x': `${walk.dx}px`, '--from-y': `${walk.dy}px` } as Record<string, string>)
-            : null;
-        })(),
+        ...timing,
       }}
       onMouseEnter={() => setHovered(agent.id)}
       onMouseLeave={() => setHovered(null)}
@@ -74,7 +88,8 @@ export const AgentFigure = memo(function AgentFigure({
         setOpen(agent.id);
       }}
     >
-      {body}
+      {/* the body bobs on its own while the wrapper carries it across the floor */}
+      <div className={styles.stride}>{body}</div>
       {showName ? (
         <div className={styles.namePlate} style={{ left: box.anchorX, top: box.nameTop }}>
           <div

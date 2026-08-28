@@ -169,7 +169,7 @@
   width: 8px;
   height: 14px;
   background: var(--wait);
-  animation: bulb 1s steps(2) infinite;
+  animation: caretBlink 1s steps(2) infinite;
 }
 
 .tools {
@@ -260,5 +260,29 @@
 
   .hidden {
     display: none;
+  }
+}
+
+/*
+ * The caret's own keyframes, not the scenery's `bulb`: CSS Modules rewrites
+ * animation names declared in this file, so it can only reach a keyframe
+ * defined alongside them.
+ */
+@keyframes caretBlink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  43% {
+    opacity: 0.84;
+  }
+  47% {
+    opacity: 0.5;
+  }
+  51% {
+    opacity: 0.93;
+  }
+  79% {
+    opacity: 0.68;
   }
 }

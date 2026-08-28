@@ -55,12 +55,14 @@ export function describeFile(projectsDir, filePath) {
 
 /**
  * Watches ~/.claude/projects for appended transcript lines and hands each
- * parsed line to `onLine(line, source)`.
+ * parsed line to `onLine(line, source)`. A transcript that disappears is
+ * reported once through `onGone(source)`.
  */
 export class TranscriptWatcher {
-  constructor({ projectsDir, onLine, onError, coldWindow = COLD_WINDOW, tailBytes }) {
+  constructor({ projectsDir, onLine, onGone, onError, coldWindow = COLD_WINDOW, tailBytes }) {
     this.projectsDir = projectsDir;
     this.onLine = onLine;
+    this.onGone = onGone || (() => {});
     this.onError = onError || (() => {});
     this.coldWindow = coldWindow;
     this.tailBytes = tailBytes;
@@ -90,6 +92,15 @@ export class TranscriptWatcher {
     this.watcher.on('unlink', (p) => {
       this.readers.delete(p);
       this.metaCache.delete(p);
+      // the transcript is gone, so the session behind it is over
+      const source = describeFile(this.projectsDir, p);
+      if (source) {
+        try {
+          this.onGone(source);
+        } catch (error) {
+          this.onError(error, 'gone');
+        }
+      }
     });
     this.watcher.on('error', (e) => this.onError(e, 'watch'));
 

@@ -84,12 +84,45 @@
   cursor: pointer;
 }
 
+/*
+ * A walk is two animations on the same element that never touch the same
+ * property: the wrapper carries the agent along the floor while a second,
+ * shorter one fades it through the cabin doors. Everything waits behind
+ * `--walk-delay`, which is however long the car still needs to arrive, and
+ * `both` fill keeps the agent inside the car — invisible — until then.
+ */
 .arriving {
-  animation: arrive 0.6s cubic-bezier(0.33, 1, 0.68, 1) both;
+  pointer-events: none;
+  animation:
+    walkIn var(--walk-ms) linear var(--walk-delay) both,
+    stepOut 300ms ease-out var(--walk-delay) both;
 }
 
 .leaving {
-  animation: depart 0.7s cubic-bezier(0.33, 0, 0.68, 1) both;
+  pointer-events: none;
+  animation:
+    walkOut var(--walk-ms) linear var(--walk-delay) both,
+    stepIn var(--step-ms) ease-in var(--fade-delay) both;
+}
+
+/* The body carries the footfall; the wrapper carries the route. */
+.stride {
+  position: absolute;
+  inset: 0;
+}
+
+.arriving .stride,
+.leaving .stride {
+  animation: walkBob 0.42s ease-in-out var(--bob-delay) infinite;
+}
+
+/* the plate belongs to a seated agent, not to one crossing the floor */
+.arriving .namePlate {
+  animation: plateIn 260ms ease-out var(--plate-delay) both;
+}
+
+.leaving .namePlate {
+  animation: plateOut 220ms ease-in var(--walk-delay) both;
 }
 
 .namePlate {
@@ -349,5 +382,110 @@
 @media (max-width: 768px) {
   .zoomWide {
     display: none;
+  }
+}
+
+/* ------------------------------------------------------- walking keyframes */
+
+/*
+ * These live here rather than in global.css on purpose: CSS Modules rewrites
+ * every animation name it finds in this file, so a keyframe it cannot see in
+ * the same file is referenced under a hashed name that does not exist and the
+ * animation silently never runs.
+ */
+/*
+ * Walking on and off a floor (plan 5.3).
+ *
+ * `--from-x` / `--from-y` is the doorway measured from the seat, so both
+ * routes are the same line travelled in opposite directions. The middle
+ * keyframe bows the path a few pixels towards the front of the plate — a
+ * straight slide between two points reads as a dragged sprite, a bowed one as
+ * somebody walking round the furniture. Every keyframe carries the same
+ * transform functions in the same order so the browser interpolates them one
+ * by one instead of falling back to matrix decomposition.
+ */
+@keyframes walkIn {
+  0% {
+    transform: translate(var(--from-x), var(--from-y)) scale(0.92);
+    animation-timing-function: cubic-bezier(0.25, 0.6, 0.4, 1);
+  }
+  12% {
+    transform: translate(calc(var(--from-x) * 0.9), calc(var(--from-y) * 0.9 + 4px)) scale(1);
+    animation-timing-function: linear;
+  }
+  58% {
+    transform: translate(calc(var(--from-x) * 0.42), calc(var(--from-y) * 0.42 + 7px)) scale(1);
+    animation-timing-function: cubic-bezier(0.35, 0, 0.2, 1);
+  }
+  93% {
+    transform: translate(0, -3px) scale(1);
+    animation-timing-function: ease-out;
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+@keyframes walkOut {
+  0% {
+    transform: translate(0, 0) scale(1);
+    animation-timing-function: ease-out;
+  }
+  9% {
+    /* stands up */
+    transform: translate(0, -6px) scale(1.02);
+    animation-timing-function: ease-in;
+  }
+  18% {
+    transform: translate(0, 0) scale(1);
+    animation-timing-function: linear;
+  }
+  60% {
+    transform: translate(calc(var(--from-x) * 0.48), calc(var(--from-y) * 0.48 + 7px)) scale(1);
+    animation-timing-function: cubic-bezier(0.3, 0, 0.4, 1);
+  }
+  100% {
+    transform: translate(var(--from-x), var(--from-y)) scale(0.94);
+  }
+}
+/* the footfall itself: two steps a second, with the body swaying over them */
+@keyframes walkBob {
+  0% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-3.5px) rotate(-1.4deg); }
+  50% { transform: translateY(0) rotate(0deg); }
+  75% { transform: translateY(-3.5px) rotate(1.4deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+@keyframes stepOut {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes stepIn {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes plateIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes plateOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* nobody walks: an agent appears in its seat and fades out of it */
+  .arriving {
+    animation: stepOut 200ms ease-out both;
+  }
+
+  .leaving {
+    animation: stepIn 200ms ease-in both;
+  }
+
+  .arriving .stride,
+  .leaving .stride,
+  .arriving .namePlate,
+  .leaving .namePlate {
+    animation: none;
   }
 }

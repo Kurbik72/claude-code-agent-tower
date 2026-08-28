@@ -44,6 +44,12 @@ export async function createServer({
   const watcher = new TranscriptWatcher({
     projectsDir,
     onLine: (line, source) => normalizer.ingest(line, source),
+    // A deleted session transcript is the one unambiguous "session closed" the
+    // format gives us; a subagent file going away means nothing on its own,
+    // because its Task returning has already sent that agent home.
+    onGone: (source) => {
+      if (source.kind === 'session') store.removeSession(source.sessionId, 'closed');
+    },
     onError: (error, kind) => {
       if (kind === 'missing-dir') store.warn('projects.missing', { dir: projectsDir });
       else store.warn(`watch.${kind}`, { message: String(error.message || error) });

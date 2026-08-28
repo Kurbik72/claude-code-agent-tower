@@ -1,30 +1,36 @@
 import { useEffect, useState } from 'react';
 import styles from './canvas.module.css';
-import { useTower } from '../store/tower';
+import { DOOR_HOLD, useTower } from '../store/tower';
 
 /**
  * The single car that serves the whole tower.
  *
  * Travel is a CSS transition on `top`, not a keyframe, so an interrupted trip
- * retargets smoothly. The doors open on arrival — the centre seam widens from
- * 3px to 26px — and close again once the passenger is out (plan 5.3).
+ * retargets smoothly. The doors are driven by the store rather than by the
+ * car's own timer: whoever called the lift knows when it will land, and the
+ * passenger's walk is timed against the same number (plan 5.3).
  */
 export function Elevator() {
   const liftY = useTower((s) => s.liftY);
   const liftFloor = useTower((s) => s.liftFloor);
+  const doorSeq = useTower((s) => s.liftDoorSeq);
+  const doorIn = useTower((s) => s.liftDoorIn);
   const floors = useTower((s) => s.floors);
   const overflowUsed = useTower((s) => s.stats.overflowUsed);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    // the doors open when the car lands and shut once the agent is seated
-    const openAt = window.setTimeout(() => setOpen(true), 1150);
-    const shutAt = window.setTimeout(() => setOpen(false), 2050);
+    if (!doorSeq) return;
+    // held open long enough for one passenger to step through either way
+    const openAt = window.setTimeout(() => setOpen(true), doorIn);
+    const shutAt = window.setTimeout(() => setOpen(false), doorIn + DOOR_HOLD);
     return () => {
       window.clearTimeout(openAt);
       window.clearTimeout(shutAt);
     };
-  }, [liftY]);
+    // the sequence number is the event; `doorIn` only says how long to wait
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [doorSeq]);
 
   const shaftHeight = overflowUsed ? 2900 : 2430;
   const badge = floors.find((f) => f.id === liftFloor)?.num ?? '01';

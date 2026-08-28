@@ -35,6 +35,10 @@ export function Inspector() {
   const pushLocalEvent = useTower((s) => s.pushLocalEvent);
 
   const [tab, setTab] = useState<'thinking' | 'tools'>('thinking');
+  // "still loading" and "there is genuinely nothing here" read identically if
+  // both show the same placeholder, and every empty agent then looks like the
+  // same agent. They are told apart.
+  const [state, setState] = useState<'loading' | 'ready' | 'gone'>('loading');
   const announced = useRef<string | null>(null);
   const reasoning = useRef<HTMLDivElement>(null);
   const pinned = useRef(true);
@@ -52,8 +56,17 @@ export function Inspector() {
   useEffect(() => {
     if (!openAgent) return;
     let live = true;
+    setState('loading');
     focusAgent(openAgent, true).then((next) => {
-      if (live && next) setDetail(next);
+      if (!live) return;
+      // the id is checked as well as the closure flag: a slow answer for the
+      // agent that was open a moment ago must never land in this panel
+      if (next && next.agentId === openAgent) {
+        setDetail(next);
+        setState('ready');
+      } else {
+        setState('gone');
+      }
     });
     return () => {
       live = false;
@@ -90,6 +103,10 @@ export function Inspector() {
   // is opened for, and it must not sit at the bottom of a 100-row history
   const tools = detail ? tail(detail.tools, revealedTools).reverse() : [];
   const streaming = agent.status === 'work';
+  // an empty column says which kind of empty it is: still loading, the agent
+  // has gone, or it really has nothing to show yet
+  const emptyLine = (what: 'Thinking' | 'Tools') =>
+    state === 'ready' ? t(`inspector.no${what}`) : t(`inspector.${state}`);
 
   return createPortal(
     <div className={styles.backdrop} onClick={() => setOpen(null)}>
@@ -156,7 +173,7 @@ export function Inspector() {
               ) : (
                 <div className={styles.line}>
                   <span className={styles.marker}>›</span>
-                  <span className={styles.lineText}>{t('inspector.loading')}</span>
+                  <span className={styles.lineText}>{emptyLine('Thinking')}</span>
                 </div>
               )}
               {streaming ? <div className={styles.caret} /> : null}
@@ -168,18 +185,25 @@ export function Inspector() {
           >
             <div className={styles.columnLabel}>{t('inspector.tools')}</div>
             <div className={styles.tools}>
-              {tools.map((tool) => (
-                <div
-                  key={tool.id}
-                  className={styles.tool}
-                  style={{ borderLeftColor: TOOL_COLOR[tool.status] }}
-                >
-                  <span className={styles.toolName}>{tool.label}</span>
-                  <span className={styles.toolStatus} style={{ color: TOOL_COLOR[tool.status] }}>
-                    {t(`tool.${tool.status}`)}
-                  </span>
+              {tools.length ? (
+                tools.map((tool) => (
+                  <div
+                    key={tool.id}
+                    className={styles.tool}
+                    style={{ borderLeftColor: TOOL_COLOR[tool.status] }}
+                  >
+                    <span className={styles.toolName}>{tool.label}</span>
+                    <span className={styles.toolStatus} style={{ color: TOOL_COLOR[tool.status] }}>
+                      {t(`tool.${tool.status}`)}
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <div className={styles.line}>
+                  <span className={styles.marker}>›</span>
+                  <span className={styles.lineText}>{emptyLine('Tools')}</span>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>

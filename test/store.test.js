@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { Store, WORK_WINDOW, WAIT_WINDOW, LEAVE_AFTER } from '../server/store.js';
+import { Store, WORK_WINDOW, WAIT_WINDOW, LEAVE_AFTER, DONE_AFTER } from '../server/store.js';
 import { Normalizer } from '../server/normalizer.js';
 import { capacityOf, OVERFLOW_FLOOR_ID } from '../server/floors.js';
 
@@ -63,6 +63,56 @@ describe('status inference', () => {
 
     store.refreshStatuses(clock.t + LEAVE_AFTER + 1);
     expect(store.getAgent('a')).toBeNull();
+  });
+
+  it('sends an agent home once it has answered and gone quiet', () => {
+    const clock = { t: 1_000_000 };
+    const store = makeStore(clock);
+    const agent = addAgent(store, 'a');
+    const reasons = [];
+    store.on('patch', (p) => p.type === 'agent.leave' && reasons.push(p.data.reason));
+    store.touch(agent, clock.t, 'answer');
+
+    store.refreshStatuses(clock.t + DONE_AFTER - 1);
+    expect(store.getAgent('a')).not.toBeNull();
+
+    store.refreshStatuses(clock.t + DONE_AFTER + 1);
+    expect(store.getAgent('a')).toBeNull();
+    expect(reasons).toEqual(['finished']);
+  });
+
+  it('keeps a quiet agent that never finished until the idle timeout', () => {
+    const clock = { t: 1_000_000 };
+    const store = makeStore(clock);
+    const agent = addAgent(store, 'a');
+    store.touch(agent, clock.t, 'tool_use');
+
+    store.refreshStatuses(clock.t + DONE_AFTER + 1);
+    expect(store.getAgent('a')).not.toBeNull();
+  });
+
+  it('empties a whole session when its transcript is deleted', () => {
+    const store = makeStore();
+    addAgent(store, 's:sess-1', { sessionId: 'sess-1' });
+    addAgent(store, 'a:sub-1', { kind: 'subagent', sessionId: 'sess-1' });
+    addAgent(store, 's:sess-2', { sessionId: 'sess-2' });
+
+    expect(store.removeSession('sess-1')).toBe(2);
+    expect(store.getAgent('s:sess-1')).toBeNull();
+    expect(store.getAgent('a:sub-1')).toBeNull();
+    expect(store.getAgent('s:sess-2')).not.toBeNull();
+  });
+});
+
+describe('thinking retention', () => {
+  it('never reuses a line id once the cap starts dropping the oldest', () => {
+    const store = makeStore();
+    const agent = addAgent(store, 'a');
+    for (let i = 0; i < 260; i++) store.addThinking(agent, `line ${i}`, store.now());
+
+    const ids = agent.thinking.map((line) => line.id);
+    expect(agent.thinking).toHaveLength(200);
+    expect(new Set(ids).size).toBe(ids.length);
   });
 });
 

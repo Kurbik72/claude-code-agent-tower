@@ -81,9 +81,17 @@ Recomputed from memory every 5s — no disk access:
 | `work` | last event < 60s ago and the tool cycle is still open |
 | `wait` | a final assistant answer with no tool call, or 60s–15min idle |
 | `dead` | an error, or 15min+ idle |
-| gone | 30min idle — the agent rides the lift down and leaves |
+| gone | the agent stands up, walks to the lift and rides down |
 
-A subagent closes the moment its `Agent` tool call returns; it never waits for a timeout.
+An agent goes for four reasons, and the event feed says which:
+
+- **finished** — it answered with no tool call and stayed quiet for 3 minutes. The turn is
+  over, so it does not sit out the full idle timeout;
+- **its Task returned** — a subagent closes the moment its `Agent` tool call comes back, with
+  no timeout at all;
+- **closed** — its session transcript was deleted. That is the one unambiguous "session over"
+  the format gives us, and it takes the session's subagents with it;
+- **idle** — 30 minutes of silence, whatever it was doing.
 
 ### Floors
 
@@ -95,6 +103,14 @@ A subagent closes the moment its `Agent` tool call returns; it never waits for a
 | 02 DevOps | reception, ticket desk |
 | 01 Backend | basement, window on the dump |
 | 00 Shift change | overflow only — appears when a floor runs out of seats |
+
+Nobody appears in their chair. An arriving agent calls the lift, waits inside the car until
+its doors are open on the right floor, then steps out and walks to its seat; a leaving one
+stands up, walks back and the doors close over it. Both walks are timed against the car
+itself — the store answers `sendLift` with *when the doors will be open* and the walk is timed
+backwards from that number — so nobody crosses a floor towards a shut door. A burst of agents
+queues more trips than anyone will watch, so past three seconds the agent stops waiting for
+its turn and simply walks in.
 
 Placement is an isometric grid inside each 760×600 plate, minus a per-floor furniture mask:
 12 seats per themed floor, 24 on floor 00. A full floor pushes its *waiting* agents to floor 00;
@@ -123,6 +139,10 @@ The panel is portalled onto `document.body` rather than rendered inside the canv
 pan/zoom surface — `touch-action: none` and a non-passive wheel handler — so a modal nested in it
 has its scrolling eaten by the zoom gesture before either column sees it. Reasoning holds its
 bottom edge as older lines unfold, but only while you are already down there.
+
+An empty column says which kind of empty it is — still loading, the agent has left, or it
+genuinely has nothing to show yet. A single placeholder for all three made every quiet agent
+look like the same agent.
 
 One caveat, and it is upstream of us: Claude Code writes `thinking` blocks to the transcript with
 the text stripped out — only the signature survives. So the reasoning column shows the agent's

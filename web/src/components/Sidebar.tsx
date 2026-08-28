@@ -99,6 +99,17 @@ export function Sidebar({ open, onSelect }: { open: boolean; onSelect: (id: Floo
 }
 
 /**
+ * A departure reads differently depending on what ended it. The keys are flat
+ * on purpose: `event['agent.leave']` already holds a dot, and a third one
+ * would leave i18next guessing where the nesting stops.
+ */
+const LEAVE_KEY: Record<string, string> = {
+  finished: 'event.leaveFinished',
+  closed: 'event.leaveClosed',
+  idle: 'event.leaveIdle',
+};
+
+/**
  * The server only ever sends codes and enums; every readable string is built
  * here so the feed re-reads correctly when the language changes (plan 7).
  */
@@ -109,6 +120,12 @@ function describe(
   if (event.kind === 'warn') {
     const code = String(event.params.code ?? '');
     return t(`event.warn.${code}`, { ...event.params, defaultValue: code });
+  }
+  // why an agent left is the interesting half of the line: it finished, its
+  // session closed, or it simply went quiet long enough to be sent home
+  if (event.kind === 'agent.leave') {
+    const key = LEAVE_KEY[String(event.params.reason ?? '')] ?? 'event.agent.leave';
+    return t(key, { ...event.params, defaultValue: event.kind });
   }
   return t(`event.${event.kind}`, { ...event.params, defaultValue: event.kind });
 }

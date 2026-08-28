@@ -219,16 +219,6 @@ button {
   50% { opacity: 0.2; }
 }
 
-/* an agent stepping out of the elevator car towards its seat (plan 5.3) */
-@keyframes arrive {
-  from { opacity: 0; transform: translate(var(--from-x), var(--from-y)); }
-  to { opacity: 1; transform: translate(0, 0); }
-}
-@keyframes depart {
-  from { opacity: 1; transform: translate(0, 0); }
-  to { opacity: 0; transform: translate(var(--from-x), var(--from-y)); }
-}
-
 /* A floor scrolled out of the viewport stops every ambient loop it contains. */
 [data-paused='true'] *,
 [data-paused='true'] {
