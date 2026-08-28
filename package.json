@@ -1,0 +1,49 @@
+{
+  "name": "agent-tower",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Isometric tower visualization of live Claude Code agent sessions",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "agent-tower": "bin/agent-tower.mjs"
+  },
+  "files": [
+    "bin",
+    "server",
+    "web/dist",
+    "fixtures"
+  ],
+  "scripts": {
+    "start": "npm run build && node bin/agent-tower.mjs",
+    "dev:web": "vite --config web/vite.config.ts",
+    "build": "vite build --config web/vite.config.ts",
+    "replay": "node server/replay.js",
+    "test": "vitest run",
+    "typecheck": "tsc -p web/tsconfig.json --noEmit",
+    "prepack": "npm run build",
+    "dev:server": "node bin/agent-tower.mjs --no-open"
+  },
+  "dependencies": {
+    "@fastify/static": "^8.0.4",
+    "chokidar": "^4.0.3",
+    "fastify": "^5.2.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.7",
+    "@types/react-dom": "^19.0.3",
+    "@use-gesture/react": "^10.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "i18next": "^24.2.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-i18next": "^15.4.0",
+    "typescript": "^5.7.3",
+    "vite": "^6.0.7",
+    "vitest": "^2.1.8",
+    "zustand": "^5.0.3"
+  }
+}

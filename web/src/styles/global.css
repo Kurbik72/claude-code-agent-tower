@@ -1,0 +1,247 @@
+/*
+ * Design tokens and the ambient animation library.
+ *
+ * The palette is authored in oklch and stays in oklch: the design's lightness
+ * relationships are tuned in that space and converting to hex loses them.
+ */
+
+:root {
+  /* surfaces */
+  --page: oklch(0.11 0.008 70);
+  --sidebar: oklch(0.145 0.012 70);
+  --header: oklch(0.15 0.012 70);
+  --chip: oklch(0.17 0.012 70);
+  --chip-dim: oklch(0.16 0.01 70);
+  --card: oklch(0.16 0.012 68 / 0.97);
+  --panel: oklch(0.155 0.012 68);
+  --panel-alt: oklch(0.145 0.012 66);
+  --panel-head: oklch(0.185 0.014 68);
+  --cabin: oklch(0.16 0.012 64);
+
+  /* borders */
+  --rule-list: oklch(0.175 0.014 70);
+  --rule-panel: oklch(0.24 0.018 70);
+  --rule-header: oklch(0.26 0.02 70);
+  --rule-chip: oklch(0.28 0.02 70);
+  --rule-dashed: oklch(0.3 0.02 70);
+  --rule-card: oklch(0.34 0.02 70);
+  --rule-lift: oklch(0.36 0.02 70);
+
+  /* text */
+  --ink-title: oklch(0.93 0.02 80);
+  --ink-strong: oklch(0.9 0.014 84);
+  --ink: oklch(0.72 0.012 80);
+  --ink-2: oklch(0.6 0.014 80);
+  --ink-3: oklch(0.55 0.014 80);
+  --ink-label: oklch(0.52 0.012 80);
+  --ink-time: oklch(0.46 0.012 80);
+  --ink-faint: oklch(0.42 0.012 80);
+
+  /* signal */
+  --work: oklch(0.75 0.13 148);
+  --wait: oklch(0.79 0.13 76);
+  --dead: oklch(0.6 0.19 28);
+  --lamp: oklch(0.92 0.09 88);
+  --bulb: oklch(0.94 0.1 88);
+  --accent: oklch(0.79 0.13 76);
+  --accent-hover: oklch(0.88 0.1 76);
+  --whip: oklch(0.72 0.1 44);
+  --whip-ink: oklch(0.86 0.05 60);
+
+  /* tool statuses */
+  --tool-ok: oklch(0.74 0.12 148);
+  --tool-run: oklch(0.86 0.12 84);
+  --tool-wait: oklch(0.6 0.016 80);
+  --tool-fail: oklch(0.64 0.19 28);
+
+  --ui: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue',
+    Helvetica, sans-serif;
+  --display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Helvetica,
+    sans-serif;
+  --mono: ui-monospace, 'SF Mono', Menlo, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--page);
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+body {
+  font-family: var(--ui);
+  color: var(--ink);
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--accent-hover);
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+#root {
+  height: 100vh;
+}
+
+/* --------------------------------------------------------------- animations */
+
+@keyframes bulb {
+  0%, 100% { opacity: 1; }
+  43% { opacity: 0.84; }
+  47% { opacity: 0.5; }
+  51% { opacity: 0.93; }
+  79% { opacity: 0.68; }
+}
+@keyframes fluor {
+  0%, 100% { opacity: 1; }
+  21% { opacity: 0.45; }
+  23% { opacity: 1; }
+  62% { opacity: 0.9; }
+  64% { opacity: 0.5; }
+  66% { opacity: 1; }
+}
+@keyframes crt {
+  from { transform: translateY(0); }
+  to { transform: translateY(-50%); }
+}
+@keyframes typeR {
+  0% { transform: rotate(8deg); }
+  100% { transform: rotate(24deg); }
+}
+@keyframes typeL {
+  0% { transform: rotate(-24deg); }
+  100% { transform: rotate(-8deg); }
+}
+@keyframes breathe {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+@keyframes jolt {
+  0% { transform: translateY(0); }
+  16% { transform: translateY(-9px); }
+  38% { transform: translateY(3px) scaleY(0.94); }
+  62% { transform: translateY(-3px); }
+  100% { transform: translateY(0); }
+}
+@keyframes whipEnter {
+  0% { transform: translateY(-80px); opacity: 0; }
+  15% { transform: translateY(0); opacity: 1; }
+  66% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-60px); opacity: 0; }
+}
+@keyframes handleSwing {
+  0% { transform: rotate(-36deg); }
+  24% { transform: rotate(17deg); }
+  52% { transform: rotate(3deg); }
+  100% { transform: rotate(-14deg); }
+}
+@keyframes lashSeg {
+  0% { transform: rotate(-48deg); }
+  26% { transform: rotate(31deg); }
+  48% { transform: rotate(-9deg); }
+  72% { transform: rotate(11deg); }
+  100% { transform: rotate(-22deg); }
+}
+@keyframes lashTip {
+  0% { transform: rotate(-74deg); }
+  26% { transform: rotate(60deg); }
+  44% { transform: rotate(-26deg); }
+  68% { transform: rotate(23deg); }
+  100% { transform: rotate(-36deg); }
+}
+@keyframes lashSwing {
+  0% { transform: rotate(-26deg); }
+  30% { transform: rotate(24deg); }
+  60% { transform: rotate(-8deg); }
+  100% { transform: rotate(0deg); }
+}
+@keyframes flash {
+  0% { transform: scale(0.2); opacity: 0; }
+  30% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(2.1); opacity: 0; }
+}
+@keyframes bubble {
+  0% { transform: translateY(8px); opacity: 0; }
+  22% { transform: translateY(0); opacity: 1; }
+  74% { opacity: 1; }
+  100% { transform: translateY(-20px); opacity: 0; }
+}
+@keyframes steam {
+  0% { transform: translateY(0) scale(0.7); opacity: 0; }
+  22% { opacity: 0.55; }
+  100% { transform: translateY(-70px) scale(1.6); opacity: 0; }
+}
+@keyframes stir {
+  0% { transform: rotate(-30deg); }
+  50% { transform: rotate(-62deg); }
+  100% { transform: rotate(-30deg); }
+}
+@keyframes sway {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(4deg); }
+}
+@keyframes waddle {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+@keyframes tail {
+  0%, 100% { transform: rotate(-14deg); }
+  50% { transform: rotate(16deg); }
+}
+@keyframes rain {
+  from { transform: translateY(-30px); }
+  to { transform: translateY(150px); }
+}
+@keyframes sipArm {
+  0%, 100% { transform: rotate(-50deg); }
+  44%, 56% { transform: rotate(-70deg); }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.75; }
+  50% { opacity: 0.2; }
+}
+
+/* an agent stepping out of the elevator car towards its seat (plan 5.3) */
+@keyframes arrive {
+  from { opacity: 0; transform: translate(var(--from-x), var(--from-y)); }
+  to { opacity: 1; transform: translate(0, 0); }
+}
+@keyframes depart {
+  from { opacity: 1; transform: translate(0, 0); }
+  to { opacity: 0; transform: translate(var(--from-x), var(--from-y)); }
+}
+
+/* A floor scrolled out of the viewport stops every ambient loop it contains. */
+[data-paused='true'] *,
+[data-paused='true'] {
+  animation-play-state: paused !important;
+}
+
+/*
+ * Reduced motion: the ambient loops stop, but elevator travel stays — it is
+ * how the tower says where focus went — only without the spring easing.
+ */
+@media (prefers-reduced-motion: reduce) {
+  [style*='animation'],
+  [class*='ambient'] {
+    animation: none !important;
+  }
+}

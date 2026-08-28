@@ -6,6 +6,8 @@ areas of a codebase (Frontend, Testers, QA, DevOps, Backend). Each floor is a cu
 room populated with agent characters; a single elevator car travels the shaft between floors to
 show which floor currently holds focus. Floor lights turn on automatically whenever a floor has
 active agents and go dark when it is idle, so the tower reads as a live activity map at a glance.
+Clicking any agent opens an inspector modal ("внутри головы") that streams that agent's reasoning
+lines and its list of called tools with per-tool status.
 
 The canonical, most developed design is **Agent Tower.dc.html**. The other three files are
 earlier explorations of the same idea and are included as context, not as targets.
@@ -49,10 +51,9 @@ background `oklch(0.15 0.012 70)`, `border-bottom: 1px solid oklch(0.26 0.02 70)
 
 Contents, left to right:
 - **Title block** (`flex-column; gap: 3px`)
-  - "Claude Code · дом агентов" — Barlow Condensed 700, 21px, `letter-spacing: 0.07em`,
-    `text-transform: uppercase`, `line-height: 1`, `oklch(0.93 0.02 80)`
-  - "пять этажей · изометрия · лифт один" — 10.5px, `letter-spacing: 0.16em`, uppercase,
-    `oklch(0.5 0.012 80)`
+  - "Claude Code · башня агентов" — SF Pro Display 700, 17.5px, `letter-spacing: 0.014em`,
+    `text-transform: uppercase`, `line-height: 1`, `white-space: nowrap`, `oklch(0.93 0.02 80)`.
+    No subtitle line.
 - **Status chips** (`flex; gap: 8px; flex-wrap: wrap`). Each chip: `flex; align-items: center;
   gap: 7px; padding: 5px 10px`, 1px border, label 11.5px `letter-spacing: 0.08em`. Four chips:
   1. "на смене {count}" — border `oklch(0.28 0.02 70)`, bg `oklch(0.17 0.012 70)`,
@@ -77,9 +78,7 @@ background `oklch(0.24 0.018 70)` (the 1px gap reads as a divider).
 #### 2a. Sidebar — 272px, `oklch(0.145 0.012 70)`, `flex-column`
 - **Object header**, `padding: 12px 14px 11px`, `border-bottom: 1px solid oklch(0.24 0.018 70)`:
   "объект" (10px, `letter-spacing: 0.18em`, uppercase, `oklch(0.52 0.012 80)`),
-  "agents-lab / 5 этажей" (12.5px, `oklch(0.9 0.014 84)`, `margin-top: 5px`),
-  "свет включается сам, когда на этаже есть агенты" (10.5px, `line-height: 1.5`,
-  `oklch(0.54 0.012 80)`, `margin-top: 3px`).
+  "agents-lab / 5 этажей" (12.5px, `oklch(0.9 0.014 84)`, `margin-top: 5px`).
 - **Floor list** — scrollable (`flex: 1; min-height: 0; overflow-y: auto`), one row per floor,
   top floor first. Row: `padding: 10px 14px`, `cursor: pointer`,
   `border-bottom: 1px solid oklch(0.175 0.014 70)`, `border-left: 2px solid <floor accent>`,
@@ -161,9 +160,61 @@ Background `oklch(0.16 0.012 68 / 0.97)`, `border: 1px solid oklch(0.34 0.02 70)
 gap: 8px; padding: 9px 11px; border-bottom: 1px solid oklch(0.26 0.02 70)` — 7px status dot,
 then the agent name at 12.5px `oklch(0.93 0.014 84)`.
 
+Below the event feed, a hint strip (`padding: 10px 14px`,
+`border-top: 1px solid oklch(0.24 0.018 70)`, 10px, `line-height: 1.7`, `oklch(0.48 0.012 80)`):
+"колесо — зум · тяни мышкой — панорама · клик по этажу — приблизить · клик по агенту — заглянуть в
+голову".
+
 **Zoom controls.** `position: absolute; right: 14px; bottom: 14px; z-index: 70;
 flex; align-items: center; gap: 7px`. Two 34 × 34px square buttons (− then +), centered content,
 17px glyph in `oklch(0.86 0.014 84)`, `cursor: pointer`.
+
+#### 2c. Agent inspector modal — "внутри головы"
+Opened by clicking an agent; rendered inside the canvas section, not the page root.
+
+- **Backdrop**: `position: absolute; inset: 0; z-index: 100; display: flex; align-items: center;
+  justify-content: center; padding: 28px`, `background: oklch(0.08 0.006 60 / 0.78)`,
+  `backdrop-filter: blur(3px)`. Clicking it closes the modal.
+- **Panel**: `width: 780px; max-width: 100%; cursor: default`, background `oklch(0.155 0.012 68)`,
+  `border: 1px solid oklch(0.32 0.02 70)`, `box-shadow: 0 30px 80px oklch(0.06 0.006 60 / 0.8)`.
+  Clicks inside must stop propagation so they do not close it.
+- **Header row**: `flex; align-items: center; gap: 14px; padding: 12px 16px;
+  border-bottom: 1px solid oklch(0.26 0.02 70)`, background `oklch(0.185 0.014 68)`.
+  - Avatar: 28 × 28px, `border-radius: 14px 14px 9px 9px`, `oklch(0.74 0.045 62)`, with two 4px
+    round eyes `oklch(0.24 0.02 60)` at `left: 7px / 17px, top: 10px`.
+  - Title: "внутри головы · {agent name}" — SF Pro Display 700, 18px, `letter-spacing: 0.03em`,
+    uppercase, `line-height: 1.1`, `oklch(0.93 0.02 84)`; followed by a 7px round status dot in the
+    agent's status color (same palette as the hover card: work `oklch(0.75 0.13 148)`,
+    wait `oklch(0.79 0.13 76)`, dead `oklch(0.6 0.19 28)`).
+  - Subtitle: "{role} · {task}" — 11px, `letter-spacing: 0.045em`, `oklch(0.58 0.014 80)`,
+    single-line ellipsis.
+  - Close button, `margin-left: auto`: "выйти", `padding: 7px 13px`, 10.5px,
+    `letter-spacing: 0.09em`, uppercase, `oklch(0.72 0.014 80)`,
+    `border: 1px solid oklch(0.34 0.02 70)`, bg `oklch(0.17 0.012 68)`;
+    hover bg `oklch(0.26 0.02 70)`, text `oklch(0.95 0.02 84)`.
+- **Body**: `display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+  background: oklch(0.26 0.02 70)` (the gap is the divider). Both columns `min-height: 230px`,
+  `padding: 14px 16px 18px`. Column labels are 10px, `letter-spacing: 0.081em`, uppercase,
+  `oklch(0.55 0.014 80)`, `margin-bottom: 11px`.
+  - **Left — "рассуждения"**, background `oklch(0.155 0.012 68)`. Lines in a
+    `flex-column; gap: 8px`; each line is `flex; gap: 8px`, a `›` marker in `oklch(0.62 0.09 76)`
+    plus text at 12.5px, `line-height: 1.5`, `oklch(0.82 0.014 84)`, `text-wrap: pretty`.
+    While lines are still arriving, an 8 × 14px caret block `oklch(0.79 0.13 76)` blinks below them
+    (`animation: bulb 1s steps(2) infinite`); it disappears when the stream finishes.
+    Before the first line lands, one placeholder line reads "загружаю контекст...".
+  - **Right — "вызванные инструменты"**, background `oklch(0.145 0.012 66)`. Rows in a
+    `flex-column; gap: 6px`; each row `flex; align-items: center; gap: 10px; padding: 8px 10px`,
+    background `oklch(0.18 0.012 66)`, `border-left: 2px solid <status color>`. Tool name is
+    monospace (`ui-monospace, 'SF Mono', Menlo, monospace`), 11.5px, `oklch(0.87 0.014 84)`,
+    single-line ellipsis; status label is 9.5px, `letter-spacing: 0.081em`, uppercase, in the same
+    status color.
+    Status colors: `ок` `oklch(0.74 0.12 148)` · `идёт` `oklch(0.86 0.12 84)` ·
+    `ждёт` `oklch(0.6 0.016 80)` · `упал` `oklch(0.64 0.19 28)`.
+- **Footer**: `padding: 10px 16px; border-top: 1px solid oklch(0.26 0.02 70)`, 10.5px,
+  `letter-spacing: 0.045em`, `oklch(0.52 0.014 80)`. Text:
+  "этаж {num} · контекст {n}% · агент не знает, что за ним наблюдают".
+  In the prototype the percentage is faked as `42 + name.length`; in production use the real
+  context-window usage.
 
 ### 3. Footer (row 3, `auto`)
 Legend / status strip matching the header's chip vocabulary.
@@ -179,6 +230,16 @@ Legend / status strip matching the header's chip vocabulary.
   dark. The header's "свет горит n/5" and "темно n" chips recount on every change.
 - **Hover an agent** → the hover card fades in above the agent with its name, status and current
   task. The card is `pointer-events: none` and must never block the plate click beneath it.
+  While the inspector modal is open the hover card is suppressed.
+- **Click an agent** → opens the inspector modal for that agent (stop propagation so the floor
+  plate does not also handle the click). Agents on a floor whose light has been switched off
+  (evacuated) do not open. On open: reasoning lines and tool rows are revealed one per **850ms**
+  tick — one new reasoning line and one new tool row per tick, starting with one tool row already
+  visible; the tick stops once both lists are fully shown. The open also appends an event to the
+  feed ("открыт поток мыслей {name}. он не в курсе.", dot color `oklch(0.78 0.09 210)`).
+- **Close the inspector** → the "выйти" button, a click on the backdrop, or `Escape`
+  (a `window` keydown listener, registered on mount and removed on unmount). Closing clears the
+  streamed lines and stops the tick.
 - **Zoom buttons** → step the world `transform` scale down / up. `transform-origin: 0 0`, and the
   canvas clips (`overflow: hidden`) with horizontal page scroll allowed (`min-width: 1080px`).
 - **Event feed** → new events prepend; the list scrolls independently of the floor list.
@@ -219,7 +280,17 @@ State lives in one component. Shape:
   Defaults to floor `f1` / `y: 2170`.
 - `view` — pan/zoom transform for the world layer.
 - `events` — the event feed, newest first, each with `time`, `color`, message.
-- `card` — hovered agent (`x`, `y`, `name`, `dot`, status/task) or null.
+- `card` — hovered agent (`x`, `y`, `name`, `dot`, status/task) or null; forced to null while the
+  inspector is open.
+- `open` — id of the agent whose inspector is showing, or null.
+- `lines` — the reasoning lines revealed so far for `open` (array, grows one per tick).
+- `toolsShown` — how many tool rows are revealed so far (integer, min 1 while open).
+
+Per-agent inspector content is static reference data keyed by agent id:
+`{ think: string[], tools: { n: string, s: 'ок' | 'идёт' | 'ждёт' | 'упал' }[] }`.
+All 17 agents have their own set (see `this.minds` in `Agent Tower.dc.html`); waiting agents have a
+single thought and one `ждёт` tool, the dead agent has one `упал` tool. In production this comes
+from the real agent's thinking stream and tool-call log.
 - `stats` — derived, not stored: `shift` (agents on duty), `lit`, `dark`, `whips`, `tokens`, `events`.
 
 Transitions: floor click → set `lift`; toggle click → flip that floor's light override; timers →
@@ -264,11 +335,16 @@ Structure:
 
 Floor accents: see the floor table.
 
-**Typography** — two families, loaded from Google Fonts:
-`IBM Plex Mono` 400/500/600 (everything by default) and
-`Barlow Condensed` 600/700 (numerals, titles, big readouts).
-Scale in use: 9.5 · 10 · 10.5 · 11 · 11.5 · 12 · 12.5 px body; 20 · 21 · 24 px condensed display.
-Label convention: uppercase + `letter-spacing` 0.1–0.18em at 9.5–10px.
+**Typography** — `Agent Tower.dc.html` uses **no web fonts**. Body and UI:
+`-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue', Helvetica,
+sans-serif`; titles and big numerals are the same stack at weight 700 (`'SF Pro Display'` first).
+Tool names in the inspector are `ui-monospace, 'SF Mono', Menlo, monospace`.
+Scale in use: 9.5 · 10 · 10.5 · 11 · 11.5 · 12 · 12.5 · 14 px body; 17.5 · 18 · 20 · 24 · 46 px
+display. Label convention: uppercase + `letter-spacing` 0.045–0.081em at 9.5–10px.
+Numeric readouts use `font-variant-numeric: tabular-nums`.
+
+(The three older exploration files still load `IBM Plex Mono` and `Barlow Condensed` from Google
+Fonts. The tower does not — match the tower.)
 
 **Spacing** — 2 · 3 · 5 · 7 · 8 · 9 · 10 · 11 · 14 · 18 · 20 · 24 px. Sidebar 272px. 1px grid gaps
 used as dividers.
@@ -290,14 +366,23 @@ the icons — is built from positioned `div`s with `clip-path`, `transform: skew
 `repeating-linear-gradient` and `border-radius`. There are no images, sprites, icon fonts or SVG
 files to carry over.
 
-Only external dependency: the two Google Fonts above.
+No external dependencies: the tower is system-font only.
 
 If this ships inside an Anthropic surface, use the existing brand type and color system in the
 codebase rather than re-declaring these tokens.
 
+## Screenshots
+In `screenshots/`, captured from `Agent Tower.dc.html` in a ~920px-wide viewport at 0.84 page
+zoom, so they are indicative of composition rather than of true pixel sizes. The `.dc.html` file is
+the source of truth for measurements.
+- `tower-overview.png` — whole tower fitted in the canvas, sidebar and event feed populated
+- `tower-hover-card.png` — agent hover card over a floor
+- `tower-inspector.png` — the "внутри головы" inspector open on `regress-lord`
+
 ## Files
 - `Agent Tower.dc.html` — **the design to implement.** Isometric five-floor tower, elevator,
-  automatic floor lighting, sidebar floor list + event feed, hover cards, zoom. 1126 lines.
+  automatic floor lighting, sidebar floor list + event feed, hover cards, agent inspector modal,
+  zoom. 1246 lines.
 - `Agent Building.dc.html` — early exploration of the same tower, floors 05 and 04 only. Useful for
   the per-floor `data-screen-label` naming. 282 lines.
 - `Agent Console.dc.html` — a flat (non-isometric) console variant, single basement room. Its

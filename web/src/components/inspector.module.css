@@ -1,0 +1,264 @@
+/* "внутри головы" — the agent inspector. Portalled onto the body, so it covers
+   the whole window rather than only the canvas section it is opened from. */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  /* above the mobile sidebar drawer (200) */
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  background: oklch(0.08 0.006 60 / 0.78);
+  backdrop-filter: blur(3px);
+}
+
+.panel {
+  width: 780px;
+  max-width: 100%;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  cursor: default;
+  background: var(--panel);
+  border: 1px solid oklch(0.32 0.02 70);
+  box-shadow: 0 30px 80px oklch(0.06 0.006 60 / 0.8);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--rule-header);
+  background: var(--panel-head);
+}
+
+.avatar {
+  position: relative;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 14px 14px 9px 9px;
+  background: oklch(0.74 0.045 62);
+}
+
+.eye {
+  position: absolute;
+  top: 10px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: oklch(0.24 0.02 60);
+}
+
+.headText {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.headTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.headTitle {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  line-height: 1.1;
+  color: oklch(0.93 0.02 84);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.headDot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.headSub {
+  font-size: 11px;
+  letter-spacing: 0.045em;
+  color: oklch(0.58 0.014 80);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.close {
+  margin-left: auto;
+  flex: none;
+  padding: 7px 13px;
+  font-size: 10.5px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink);
+  border: 1px solid var(--rule-card);
+  background: oklch(0.17 0.012 68);
+}
+
+.close:hover {
+  background: var(--rule-header);
+  color: oklch(0.95 0.02 84);
+}
+
+.body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  min-height: 0;
+  background: var(--rule-header);
+}
+
+.column {
+  padding: 14px 16px 18px;
+  min-height: 230px;
+  max-height: 46vh;
+  overflow-y: auto;
+  background: var(--panel);
+}
+
+.columnAlt {
+  background: var(--panel-alt);
+}
+
+.columnLabel {
+  margin-bottom: 11px;
+  font-size: 10px;
+  letter-spacing: 0.081em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.lines {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.line {
+  display: flex;
+  gap: 8px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: oklch(0.82 0.014 84);
+}
+
+.marker {
+  flex: none;
+  color: oklch(0.62 0.09 76);
+}
+
+.lineText {
+  text-wrap: pretty;
+}
+
+.caret {
+  width: 8px;
+  height: 14px;
+  background: var(--wait);
+  animation: bulb 1s steps(2) infinite;
+}
+
+.tools {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tool {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: oklch(0.18 0.012 66);
+  border-left: 2px solid;
+}
+
+.toolName {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: oklch(0.87 0.014 84);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.toolStatus {
+  flex: none;
+  font-size: 9.5px;
+  letter-spacing: 0.081em;
+  text-transform: uppercase;
+}
+
+.foot {
+  padding: 10px 16px;
+  border-top: 1px solid var(--rule-header);
+  font-size: 10.5px;
+  letter-spacing: 0.045em;
+  color: oklch(0.52 0.014 80);
+}
+
+.tabs {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .backdrop {
+    padding: 0;
+    align-items: stretch;
+  }
+
+  .panel {
+    width: 100%;
+    max-width: none;
+  }
+
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--rule-header);
+  }
+
+  .tab {
+    flex: 1;
+    padding: 9px 12px;
+    font-size: 10.5px;
+    letter-spacing: 0.081em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    background: var(--panel-alt);
+  }
+
+  .tabActive {
+    color: oklch(0.93 0.02 84);
+    background: var(--panel);
+  }
+
+  .body {
+    grid-template-columns: minmax(0, 1fr);
+    flex: 1;
+    min-height: 0;
+  }
+
+  .column {
+    max-height: none;
+  }
+
+  .hidden {
+    display: none;
+  }
+}

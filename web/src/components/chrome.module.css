@@ -1,0 +1,473 @@
+/* Header, sidebar and footer — the frame around the tower canvas. */
+
+.shell {
+  height: 100vh;
+  min-height: 500px;
+  min-width: 1080px;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--ui);
+  overflow: hidden;
+}
+
+/* ------------------------------------------------------------------ header */
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 11px 20px;
+  background: var(--header);
+  border-bottom: 1px solid var(--rule-header);
+}
+
+.title {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 17.5px;
+  letter-spacing: 0.014em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--ink-title);
+  line-height: 1;
+}
+
+.chips {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  font-variant-numeric: tabular-nums;
+  min-width: 0;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  white-space: nowrap;
+  border: 1px solid var(--rule-chip);
+  background: var(--chip);
+  max-width: 220px;
+}
+
+.chip > span:last-child {
+  font-size: 11px;
+  letter-spacing: 0.018em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chipDark {
+  border: 1px dashed var(--rule-dashed);
+  background: var(--chip-dim);
+  color: var(--ink-2);
+}
+
+.chipWhip {
+  border-color: oklch(0.34 0.06 40);
+  background: oklch(0.18 0.02 40);
+  color: var(--whip-ink);
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.square {
+  width: 7px;
+  height: 7px;
+  border: 1px solid oklch(0.44 0.012 80);
+  flex: none;
+}
+
+.whipGlyph {
+  display: block;
+  width: 16px;
+  height: 10px;
+  flex: none;
+  background: var(--whip);
+  clip-path: polygon(0 0, 34% 20%, 62% 62%, 100% 100%, 82% 100%, 48% 66%, 22% 26%, 0 14%);
+}
+
+.readouts {
+  margin-left: auto;
+  display: flex;
+  align-items: stretch;
+  gap: 18px;
+  font-variant-numeric: tabular-nums;
+}
+
+.rule {
+  width: 1px;
+  background: var(--rule-header);
+}
+
+.readout {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  text-align: right;
+}
+
+.readoutLabel {
+  font-size: 10px;
+  letter-spacing: 0.072em;
+  text-transform: uppercase;
+  color: var(--ink-label);
+}
+
+.readoutValue {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 1;
+  color: var(--ink-strong);
+}
+
+.lang {
+  display: flex;
+  align-items: center;
+  align-self: center;
+  border: 1px solid var(--rule-chip);
+  background: var(--chip);
+}
+
+.langButton {
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  background: transparent;
+}
+
+.langButton + .langButton {
+  border-left: 1px solid var(--rule-chip);
+}
+
+.langButton:hover {
+  color: oklch(0.93 0.02 84);
+}
+
+.langActive {
+  background: oklch(0.27 0.035 76);
+  color: oklch(0.93 0.02 84);
+}
+
+/* -------------------------------------------------------------------- body */
+
+.body {
+  display: grid;
+  grid-template-columns: 272px minmax(0, 1fr);
+  gap: 1px;
+  min-height: 0;
+  background: var(--rule-panel);
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--sidebar);
+}
+
+.objectHead {
+  padding: 12px 14px 11px;
+  border-bottom: 1px solid var(--rule-panel);
+}
+
+.sectionLabel {
+  font-size: 10px;
+  letter-spacing: 0.081em;
+  text-transform: uppercase;
+  color: var(--ink-label);
+}
+
+.objectName {
+  margin-top: 5px;
+  font-size: 12.5px;
+  color: var(--ink-strong);
+}
+
+.floorList,
+.feedList {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.floorRow {
+  padding: 10px 14px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  border-bottom: 1px solid var(--rule-list);
+  border-left: 2px solid transparent;
+  background: transparent;
+}
+
+.floorRow:hover {
+  background: oklch(0.2 0.016 70);
+}
+
+.floorRowActive {
+  background: oklch(0.2 0.016 70);
+}
+
+.floorTop {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.floorNum {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.floorText {
+  min-width: 0;
+  flex: 1;
+}
+
+.floorTitle {
+  display: block;
+  font-size: 12px;
+  color: var(--ink-strong);
+}
+
+.floorSub {
+  display: block;
+  margin-top: 2px;
+  font-size: 9.5px;
+  letter-spacing: 0.045em;
+  color: var(--ink-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lamp {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.floorCount {
+  display: block;
+  margin-top: 7px;
+  font-size: 10.5px;
+  color: var(--ink-2);
+}
+
+.feedHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px 8px;
+}
+
+.feedTotal {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--ink-faint);
+}
+
+.feedRow {
+  display: flex;
+  gap: 9px;
+  padding: 7px 14px;
+  border-bottom: 1px solid var(--rule-list);
+}
+
+.feedTime {
+  flex: none;
+  font-size: 10px;
+  color: var(--ink-time);
+  padding-top: 1px;
+  font-variant-numeric: tabular-nums;
+}
+
+.feedDot {
+  flex: none;
+  width: 5px;
+  height: 5px;
+  margin-top: 5px;
+  border-radius: 50%;
+}
+
+.feedText {
+  font-size: 11px;
+  line-height: 1.45;
+  color: oklch(0.8 0.014 84);
+}
+
+.hint {
+  padding: 10px 14px;
+  border-top: 1px solid var(--rule-panel);
+  font-size: 10px;
+  line-height: 1.7;
+  color: oklch(0.48 0.012 80);
+}
+
+/* ------------------------------------------------------------------ footer */
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 10px 20px;
+  background: var(--header);
+  border-top: 1px solid var(--rule-header);
+}
+
+.legends {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.legendText {
+  font-size: 10.5px;
+  letter-spacing: 0.036em;
+  color: var(--ink-2);
+}
+
+.logLine {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.logText {
+  font-size: 11.5px;
+  color: oklch(0.82 0.03 78);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --------------------------------------------------------------- responsive */
+
+.drawerToggle {
+  display: none;
+}
+
+@media (max-width: 1080px) {
+  .shell {
+    min-width: 0;
+  }
+
+  .body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .drawerToggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 9px;
+    border: 1px solid var(--rule-chip);
+    background: var(--chip);
+    font-size: 11px;
+    letter-spacing: 0.045em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+
+  .sidebar {
+    position: absolute;
+    z-index: 200;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 272px;
+    max-width: 86vw;
+    border-right: 1px solid var(--rule-panel);
+    transform: translateX(-100%);
+    transition: transform 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .sidebarOpen {
+    transform: translateX(0);
+  }
+
+  /* the chips scroll rather than wrap, so the header keeps its one-row height
+     in both languages (English labels run 15-20% longer) */
+  .chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .chips::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 9px 12px;
+  }
+
+  .chips {
+    order: 3;
+    flex-wrap: nowrap;
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .chips::-webkit-scrollbar {
+    display: none;
+  }
+
+  .readouts {
+    gap: 12px;
+  }
+
+  .readoutValue {
+    font-size: 19px;
+  }
+
+  .footer {
+    padding: 8px 12px;
+  }
+
+  .legends {
+    display: none;
+  }
+}
+
+@media (max-height: 600px) {
+  .header {
+    padding: 6px 20px;
+  }
+
+  .footer {
+    padding: 6px 20px;
+  }
+}

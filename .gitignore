@@ -3,3 +3,10 @@
 
 # OS
 .DS_Store
+
+
+.claude/
+
+# build output and deps
+node_modules/
+web/dist/
